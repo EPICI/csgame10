@@ -86,13 +86,17 @@ public class engine {
 	 */
 	public static Font _font = new Font("Arial",Font.PLAIN,16);
 	/**
+	 * Color currently in use
+	 */
+	public static Color _color;
+	/**
 	 * All listeners
 	 */
 	public static HashMap<Object,Object> _listeners = new HashMap<>();
 	/**
 	 * Mouse position
 	 */
-	public static int[] _mousepos = new int[2];
+	public static double[] _mousepos = new double[2];
 	/**
 	 * Log file name
 	 */
@@ -101,6 +105,10 @@ public class engine {
 	 * The original print streams
 	 */
 	public static PrintStream _stdout,_stderr;
+	/**
+	 * Whether to print debug output
+	 */
+	public static boolean _debug;
 
 	/**
 	 * The main method
@@ -108,6 +116,8 @@ public class engine {
 	 * @param args ignored
 	 */
 	public static void main(String[] args) {
+		// Set debug flag
+		_debug = args.length!=0;
 		// Redirect stdout
 		try{
 			PrintStream ps = new PrintStream(_log);
@@ -124,8 +134,11 @@ public class engine {
 		// Create blank image
 		_canvas = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_ARGB);
 		_canvas_graphics = _canvas.createGraphics();
+		_color = _canvas_graphics.getColor();
 		// Instantiate interpreter
+		if(_debug)System.out.println("Starting Python interpreter");
 		_interpreter = new PythonInterpreter();
+		if(_debug)System.out.println("Python interpreter ready!");
 		// Setup window
 		_panel = new JPanel(){
 			public Dimension getPreferredSize(){
@@ -142,14 +155,12 @@ public class engine {
 
 			@Override
 			public void mouseDragged(MouseEvent event) {
-				_mousepos[0] = event.getX();
-				_mousepos[1] = event.getY();
+				updatemousepos(event);
 			}
 
 			@Override
 			public void mouseMoved(MouseEvent event) {
-				_mousepos[0] = event.getX();
-				_mousepos[1] = event.getY();
+				updatemousepos(event);
 			}
 			
 		});
@@ -191,10 +202,18 @@ public class engine {
 		_interpreter.exec("class layermatrix:\n\tdef __init__(self,layer=None):\n\t\tself.layer=layer\n\tdef __enter__(self):\n\t\treturn pushmatrix(self.layer)\n\tdef __exit__(self,*args):\n\t\tpopmatrix()\n\t\treturn False");
 		_interpreter.set("_jython", new PyInteger(1));
 		// Run script
-		_interpreter.execfile("main.py");
-		die();
+		try{
+			_interpreter.execfile("main.py");
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			die();
+		}
 	}
 	
+	/**
+	 * Murder the program
+	 */
 	public static void die(){
 		// Signal closing in log
 		System.out.println("------------------------------------------------------------");
@@ -224,21 +243,55 @@ public class engine {
 	 * @return
 	 */
 	public static PyObject[] getpairfrom(PyObject obj,boolean asymmetric){
-		if(asymmetric || obj.isSequenceType()){
-			return new PyObject[]{obj.__getitem__(0),obj.__getitem__(1)};
-		}else{
-			return new PyObject[]{obj,obj};
-		}
+		return getgroupfrom(obj,asymmetric,2);
 	}
 	
+	/**
+	 * Attempts to extract a group
+	 * 
+	 * @param obj
+	 * @param asymmetric
+	 * @param count
+	 * @return
+	 */
+	public static PyObject[] getgroupfrom(PyObject obj,boolean asymmetric,int count){
+		PyObject[] result = new PyObject[count];
+		if(asymmetric || obj.isSequenceType()){
+			for(int i=0;i<count;i++)
+				result[i] = obj.__getitem__(i);
+		}else{
+			for(int i=0;i<count;i++)
+				result[i] = obj;
+		}
+		return result;
+	}
+	
+	/**
+	 * Updates mouse position
+	 * <br>
+	 * Meant for internal use
+	 * 
+	 * @param event
+	 */
+	public static void updatemousepos(MouseEvent event){
+		double[] mpos = _mousepos;
+		mpos[0] = event.getX()*(double)_width/_panel.getWidth();
+		mpos[1] = _height-event.getY()*(double)_height/_panel.getHeight();
+	}
+	
+	/**
+	 * Get the current mouse position
+	 * 
+	 * @return
+	 */
 	public static PyObject mousepos(){
-		return new PyTuple(new PyInteger(_mousepos[0]),new PyInteger(_mousepos[1]));
+		return new PyTuple(new PyFloat(_mousepos[0]),new PyFloat(_mousepos[1]));
 	}
 	
 	/**
 	 * Add a mouse listener and add it to the map
 	 * <br>
-	 * Function will be called with type, x, y
+	 * Function will be called with type, xy
 	 * 
 	 * @param key used later to remove
 	 * @param function function to call
@@ -254,7 +307,8 @@ public class engine {
 					RELEASE = new PyString("release");
 			
 			void call(MouseEvent event,PyString type){
-				function.__call__(new PyObject[]{type,new PyInteger(event.getX()),new PyInteger(event.getY())},new String[0]);
+				if(_debug)System.out.println("Mouse "+type+" at ("+event.getX()+","+event.getY()+")");
+				function.__call__(new PyObject[]{type,mousepos()},new String[0]);
 			}
 
 			@Override
@@ -284,6 +338,17 @@ public class engine {
 			
 		};
 		_panel.addMouseListener(listener);
+		if(_debug){
+			MouseListener[] listeners = _panel.getMouseListeners();
+			boolean found = false;
+			for(MouseListener olistener:listeners){
+				found = found || listener==olistener;
+			}
+			if(found)
+				System.out.println("Mouse listener added");
+			else
+				throw new AssertionError("Mouse listener not added");
+		}
 		return _listeners.put(key, listener)==null;
 	}
 	
@@ -304,6 +369,7 @@ public class engine {
 					TYPE = new PyString("type");
 			
 			void call(KeyEvent event,PyString type){
+				if(_debug)System.out.println("Key "+type+": "+event.getKeyCode());
 				function.__call__(new PyObject[]{type,new PyInteger(event.getKeyCode())},new String[0]);
 			}
 
@@ -324,6 +390,17 @@ public class engine {
 			
 		};
 		_panel.addKeyListener(listener);
+		if(_debug){
+			KeyListener[] listeners = _panel.getKeyListeners();
+			boolean found = false;
+			for(KeyListener olistener:listeners){
+				found = found || listener==olistener;
+			}
+			if(found)
+				System.out.println("Key listener added");
+			else
+				throw new AssertionError("Key listener not added");
+		}
 		return _listeners.put(key, listener)==null;
 	}
 	
@@ -343,6 +420,13 @@ public class engine {
 		else
 			throw new AssertionError("listener ("+listener+") is neither a mouse listener nor a key listener");
 		return true;
+	}
+	
+	/**
+	 * Fills the current clip
+	 */
+	public static void fill(){
+		_canvas_graphics.fillRect(0, 0, _width, _height);
 	}
 	
 	/**
@@ -368,13 +452,43 @@ public class engine {
 	}
 	
 	/**
+	 * Set the colour with RGB/HSV
+	 * 
+	 * @param args
+	 * @param keywords
+	 */
+	public static PyObject setcolor(PyObject[] args,String[] keywords){
+		int kwlen = keywords.length, alen = args.length-kwlen;
+		if(alen!=0 || kwlen!=1)throw new IllegalArgumentException("setcolor expected a single keyword argument");
+		String okey = keywords[0];
+		String key = okey.toLowerCase();
+		PyObject value = args[0];
+		PyObject[] components = getgroupfrom(value,false,3);
+		double a = components[0].asDouble(), b = components[1].asDouble(), c = components[2].asDouble();
+		Color color;
+		if("rgb".equals(key)){
+			color = new Color((int)Math.round(a*255),(int)Math.round(b*255),(int)Math.round(c*255));
+		}else if("hsv".equals(key) || "hsb".equals(key)){
+			color = Color.getHSBColor((float)a,(float)b,(float)c);
+		}else if("hsl".equals(key)){
+			b*=c<0.5?c:1-c;
+			color = Color.getHSBColor((float)a,(float)(2*b/(b+c)),(float)(b+c));
+		}else{
+			throw new IllegalArgumentException("type key ("+key+") not recognized");
+		}
+		_color=color;
+		_canvas_graphics.setColor(color);
+		return Py.java2py(color);
+	}
+	
+	/**
 	 * Change the font
 	 * 
 	 * @param name font name, null or empty for no change
 	 * @param style style bitmask, -1 for no change
 	 * @param size size, -1 for no change
 	 */
-	public static void setFont(String name,int style,int size){
+	public static void setfont(String name,int style,int size){
 		_font = new Font(
 				name==null||name.length()==0?_font.getFamily():name,
 				style<0?_font.getStyle():style,
@@ -389,25 +503,15 @@ public class engine {
 	 * @return
 	 */
 	public static BufferedImage render(PyObject obj){
-		return render(obj,Color.BLACK);
-	}
-	
-	/**
-	 * Render the str() of an object with the given color
-	 * 
-	 * @param obj
-	 * @param color
-	 * @return
-	 */
-	public static BufferedImage render(PyObject obj,Color color){
 		String text = obj.__str__().asString();
 		FontMetrics fm = _dummy_graphics.getFontMetrics(_font);
 		int width = fm.stringWidth(text), height = fm.getHeight();
 		BufferedImage image = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = image.createGraphics();
-		g.setColor(color);
 		g.setFont(_font);
-		g.drawString(text, 0, fm.getAscent());
+		g.setColor(_color);
+		g.scale(1, -1);
+		g.drawString(text, 0, fm.getAscent()-height);
 		g.dispose();
 		return image;
 	}
@@ -774,11 +878,13 @@ public class engine {
 				return this;
 			}
 			public PyObject __iternext__(){
+				_frame.requestFocusInWindow();
 				_canvas_graphics.dispose();
 				_draw = _canvas;
 				_canvas = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_ARGB);
 				_canvas_graphics = _canvas.createGraphics();
 				_panel.repaint();
+				setclip(null);
 				long now = System.currentTimeMillis();
 				_time += _frame_delay;
 				if(_time>now){
