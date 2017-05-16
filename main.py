@@ -28,15 +28,16 @@ istr = 'typed: '
 cx = 640
 cy = 360
 def onkey(etype,ekey):
+    global istr
     print('key',etype)
     if etype=='type' and 32<ekey<126:
-        istr+=ord(ekey)
+        istr+=chr(ekey)
 bindkey('key event name',onkey)
-def onmouse(etype,exy):
+def onmouse(etype,exy,ebutton):
     global cx
     global cy
-    print('mouse',etype)
-    if etype=='press':
+    print('mouse',etype,ebutton)
+    if etype=='press' and ebutton==1:
         cx,cy = exy
 bindmouse('mouse event name',onmouse)
 i = fps*30

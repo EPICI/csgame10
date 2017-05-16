@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.beans.PropertyChangeListener;
 import java.awt.geom.*;
 import javax.imageio.*;
 import javax.swing.*;
@@ -25,7 +26,7 @@ import org.python.util.*;
  * here in Java. Everything else should be in Python.
  * 
  * @author Rudy Li
- * @version 1.0
+ * @version 1.1
  */
 public class engine {
 	
@@ -195,7 +196,8 @@ public class engine {
 			public void windowOpened(WindowEvent arg0) {}
 			
 		});
-		_frame.requestFocusInWindow();
+		_panel.setFocusable(true);
+		_panel.requestFocusInWindow();
 		// Run header
 		_interpreter.exec("from __future__ import absolute_import, division, generators, unicode_literals, print_function, nested_scopes, with_statement");
 		_interpreter.exec("range=xrange\nint=long");
@@ -291,7 +293,7 @@ public class engine {
 	/**
 	 * Add a mouse listener and add it to the map
 	 * <br>
-	 * Function will be called with type, xy
+	 * Function will be called with type, xy, button number
 	 * 
 	 * @param key used later to remove
 	 * @param function function to call
@@ -308,7 +310,7 @@ public class engine {
 			
 			void call(MouseEvent event,PyString type){
 				if(_debug)System.out.println("Mouse "+type+" at ("+event.getX()+","+event.getY()+")");
-				function.__call__(new PyObject[]{type,mousepos()},new String[0]);
+				function.__call__(new PyObject[]{type,mousepos(),new PyInteger(event.getButton())},new String[0]);
 			}
 
 			@Override
@@ -369,8 +371,10 @@ public class engine {
 					TYPE = new PyString("type");
 			
 			void call(KeyEvent event,PyString type){
-				if(_debug)System.out.println("Key "+type+": "+event.getKeyCode());
-				function.__call__(new PyObject[]{type,new PyInteger(event.getKeyCode())},new String[0]);
+				int key = event.getKeyCode();
+				if(key==0)key = event.getKeyChar();
+				if(_debug)System.out.println("Key "+type+": "+key);
+				function.__call__(new PyObject[]{type,new PyInteger(key)},new String[0]);
 			}
 
 			@Override
@@ -413,12 +417,14 @@ public class engine {
 	public static boolean unbind(PyObject key){
 		Object listener = _listeners.get(key);
 		if(listener==null)return false;
-		if(listener instanceof MouseListener)
+		_listeners.remove(key);
+		if(listener instanceof MouseListener){
 			_panel.removeMouseListener((MouseListener)listener);
-		else if(listener instanceof KeyListener)
+		}else if(listener instanceof KeyListener){
 			_panel.removeKeyListener((KeyListener)listener);
-		else
+		}else{
 			throw new AssertionError("listener ("+listener+") is neither a mouse listener nor a key listener");
+		}
 		return true;
 	}
 	
@@ -878,7 +884,7 @@ public class engine {
 				return this;
 			}
 			public PyObject __iternext__(){
-				_frame.requestFocusInWindow();
+				_panel.requestFocusInWindow();
 				_canvas_graphics.dispose();
 				_draw = _canvas;
 				_canvas = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_ARGB);
