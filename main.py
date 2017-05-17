@@ -21,12 +21,12 @@ from core.engine import *
 fps = 24
 framerate(fps)
 # Set base resolution
-resize(1280,720)
+resize(800,450)
 
 # Test code
 istr = 'typed: '
-cx = 640
-cy = 360
+cx = 400
+cy = 225
 def onkey(etype,ekey):
     global istr
     print('key',etype)
@@ -49,10 +49,11 @@ for _ in mainloop():
     r = i*0.02
     setcolor(rgb=(1,1,1))
     fill()
+    setpolyclip([[cx+200*cos(j*pi/30),cy+200*sin(j*pi/30)] for j in range(60)])
     setcolor(rgb=(0,0,0))
     for _ in range(6):
         r += 0.9
-        for radius in range(0,1400,150):
+        for radius in range(0,300,60):
             drawimage(img,(cx+radius*cos(r),cy+radius*sin(r)))
         img = alpha(img,0.8)
 

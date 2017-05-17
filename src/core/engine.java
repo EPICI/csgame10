@@ -26,7 +26,7 @@ import org.python.util.*;
  * here in Java. Everything else should be in Python.
  * 
  * @author Rudy Li
- * @version 1.1
+ * @version 1.2
  */
 public class engine {
 	
@@ -451,6 +451,61 @@ public class engine {
 			_canvas_graphics.setClip(0,0,_width,_height);
 		else
 			_canvas_graphics.setClip(clip);
+	}
+	
+	/**
+	 * Sets the clip/mask as a polygon
+	 * <br>
+	 * Empty list will reset the clip
+	 * 
+	 * @param args
+	 * @param keywords
+	 * @return true if successful
+	 */
+	public static boolean setpolyclip(PyObject[] args,String[] keywords){
+		int kwlen = keywords.length, alen = args.length-kwlen;
+		if(kwlen!=0)throw new IllegalArgumentException("setpolyclip expected a sequence");
+		if(alen==0){
+			setclip(null);
+			return true;
+		}else if(alen==1){
+			PyObject iter = args[0];
+			if(iter.isSequenceType()){
+				int n = iter.__len__();
+				int[] xs = new int[n], ys = new int[n];
+				for(int i=0;i<n;i++){
+					PyObject group = iter.__getitem__(i);
+					xs[i] = (int)Math.round(group.__getitem__(0).asDouble());
+					ys[i] = _height-(int)Math.round(group.__getitem__(1).asDouble());
+				}
+				try{
+					setclip(new Polygon(xs,ys,n));
+					return true;
+				}catch(Exception e){
+					e.printStackTrace();
+					return false;
+				}
+			}else if(Py.None.equals(iter)){
+				setclip(null);
+				return true;
+			}else{
+				throw new IllegalArgumentException("setpolyclip expected a sequence");
+			}
+		}else{
+			int[] xs = new int[alen], ys = new int[alen];
+			for(int i=0;i<alen;i++){
+				PyObject group = args[i];
+				xs[i] = (int)Math.round(group.__getitem__(0).asDouble());
+				ys[i] = (int)Math.round(group.__getitem__(1).asDouble());
+			}
+			try{
+				setclip(new Polygon(xs,ys,alen));
+				return true;
+			}catch(Exception e){
+				e.printStackTrace();
+				return false;
+			}
+		}
 	}
 	
 	/**
