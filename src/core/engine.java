@@ -45,7 +45,7 @@ public class engine {
 	/**
 	 * Dummy graphics used for stuff like font metrics
 	 */
-	public static Graphics2D _dummy_graphics = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB).createGraphics();
+	public static Graphics2D _dummy_graphics = blankimage(1,1).createGraphics();
 	/**
 	 * The canvas which gets drawn on
 	 */
@@ -133,7 +133,7 @@ public class engine {
 			e.printStackTrace();
 		}
 		// Create blank image
-		_canvas = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_ARGB);
+		_canvas = blankimage(_width,_height);
 		_canvas_graphics = _canvas.createGraphics();
 		_color = _canvas_graphics.getColor();
 		// Instantiate interpreter
@@ -236,6 +236,12 @@ public class engine {
 		_interpreter.close();
 		// Exit
 		System.exit(0);
+	}
+	
+	public static BufferedImage blankimage(int width,int height){
+		BufferedImage result = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+		result.setRGB(0, 0, width, height, new int[width], 0, 0);
+		return result;
 	}
 	
 	/**
@@ -454,7 +460,13 @@ public class engine {
 	 * @return image
 	 */
 	public static BufferedImage loadimage(String name) throws IOException {
-		return ImageIO.read(new File(name));
+		BufferedImage image = ImageIO.read(new File(name));
+		int width = image.getWidth(), height = image.getHeight();
+		BufferedImage result = blankimage(width,height);
+		int[] array = new int[width*height];
+		image.getRGB(0, 0, width, height, array, width*(height-1), -width);
+		result.setRGB(0, 0, width, height, array, 0, width);
+		return result;
 	}
 	
 	/**
@@ -512,7 +524,7 @@ public class engine {
 		String text = obj.__str__().asString();
 		FontMetrics fm = _dummy_graphics.getFontMetrics(_font);
 		int width = fm.stringWidth(text), height = fm.getHeight();
-		BufferedImage image = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+		BufferedImage image = blankimage(width,height);
 		Graphics2D g = image.createGraphics();
 		g.setFont(_font);
 		g.setColor(_color);
@@ -520,6 +532,29 @@ public class engine {
 		g.drawString(text, 0, fm.getAscent()-height);
 		g.dispose();
 		return image;
+	}
+	
+	/**
+	 * Alphas an image and returns the result
+	 * 
+	 * @param image the original image
+	 * @param multiply value to multiply by (constrains)
+	 * @return alpha'd image
+	 */
+	public static BufferedImage alpha(BufferedImage image,double multiply){
+		int x = image.getWidth(), y = image.getHeight();
+		BufferedImage result = blankimage(x,y);
+		for(int i=0;i<x;i++){
+			for(int j=0;j<y;j++){
+				int oc = image.getRGB(i, j);
+				int alpha = (int)Math.round((oc>>>24)*multiply);
+				if(alpha>255)alpha=255;
+				if(alpha<0)alpha=0;
+				int nc = (oc&0xffffff)|(alpha<<24);
+				result.setRGB(i, j, nc);
+			}
+		}
+		return result;
 	}
 	
 	/**
@@ -887,7 +922,7 @@ public class engine {
 				_panel.requestFocusInWindow();
 				_canvas_graphics.dispose();
 				_draw = _canvas;
-				_canvas = new BufferedImage(_width,_height,BufferedImage.TYPE_INT_ARGB);
+				_canvas = blankimage(_width,_height);
 				_canvas_graphics = _canvas.createGraphics();
 				_panel.repaint();
 				setclip(null);

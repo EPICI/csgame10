@@ -18,7 +18,7 @@ from time import *
 from core.engine import *
 
 # Set reasonable FPS
-fps = 30
+fps = 24
 framerate(fps)
 # Set base resolution
 resize(1280,720)
@@ -41,15 +41,19 @@ def onmouse(etype,exy,ebutton):
         cx,cy = exy
 bindmouse('mouse event name',onmouse)
 i = fps*30
+icon = loadimage('icon.png')
 for _ in mainloop():
     i -= 1
     if not i:break
-    img = render(istr)
+    img = render(istr) if len(istr)<10 else icon
     r = i*0.02
     setcolor(rgb=(1,1,1))
     fill()
     setcolor(rgb=(0,0,0))
-    for radius in range(0,1400,60):
-        drawimage(img,(cx+radius*cos(r),cy+radius*sin(r)))
+    for _ in range(6):
+        r += 0.9
+        for radius in range(0,1400,150):
+            drawimage(img,(cx+radius*cos(r),cy+radius*sin(r)))
+        img = alpha(img,0.8)
 
 
