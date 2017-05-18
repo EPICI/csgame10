@@ -3,11 +3,9 @@ package core;
 import java.util.*;
 import java.util.concurrent.*;
 import java.io.*;
-import java.nio.file.Files;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
-import java.beans.PropertyChangeListener;
 import java.awt.geom.*;
 import javax.imageio.*;
 import javax.swing.*;
@@ -85,11 +83,11 @@ public class engine {
 	/**
 	 * Font currently in use
 	 */
-	public static Font _font = new Font("Arial",Font.PLAIN,16);
+	public static volatile Font _font = new Font("Arial",Font.PLAIN,16);
 	/**
 	 * Color currently in use
 	 */
-	public static Color _color;
+	public static volatile Color _color;
 	/**
 	 * All listeners
 	 */
@@ -110,6 +108,10 @@ public class engine {
 	 * Whether to print debug output
 	 */
 	public static boolean _debug;
+	/**
+	 * Whether or not to delete the log file
+	 */
+	public static volatile boolean _delete;
 
 	/**
 	 * The main method
@@ -182,19 +184,20 @@ public class engine {
 		_frame.add(_panel);
 		_frame.pack();
 		_frame.setVisible(true);
-		_frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		_frame.addWindowListener(new WindowListener(){
 
 			@Override
 			public void windowActivated(WindowEvent arg0) {}
 
 			@Override
-			public void windowClosed(WindowEvent arg0) {
-				die();
-			}
+			public void windowClosed(WindowEvent arg0) {}
 
 			@Override
-			public void windowClosing(WindowEvent arg0) {}
+			public void windowClosing(WindowEvent arg0) {
+				_delete = true;
+				die();
+			}
 
 			@Override
 			public void windowDeactivated(WindowEvent arg0) {}
@@ -219,6 +222,7 @@ public class engine {
 		// Run script
 		try{
 			_interpreter.execfile(scriptName);
+			_delete = true;
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -229,6 +233,8 @@ public class engine {
 	 * Murder the program
 	 */
 	public static void die(){
+		// Close window
+		_frame.dispose();
 		// Signal closing in log
 		System.out.println("------------------------------------------------------------");
 		System.out.println("Closing");
@@ -240,8 +246,10 @@ public class engine {
 		// Final garbage collection
 		System.gc();
 		// Delete log file
-		if(!new File(_log).delete()){
-			System.out.println("Unable to delete log file");
+		if(_delete){
+			if(!new File(_log).delete()){
+				System.out.println("Unable to delete log file");
+			}
 		}
 		// Clean up frame
 		_frame.dispose();

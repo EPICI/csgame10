@@ -1,4 +1,0 @@
-This is a log file. stdout and stderr are redirected here.
-This file is deleted when the program exits normally, so the file sticking around after the program exits means something went wrong. It may not be a critical error but it is something
-------------------------------------------------------------
-incremented by 1
