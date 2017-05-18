@@ -114,11 +114,24 @@ public class engine {
 	/**
 	 * The main method
 	 * 
-	 * @param args ignored
+	 * @param args
 	 */
 	public static void main(String[] args) {
-		// Set debug flag
-		_debug = args.length!=0;
+		String scriptName = "main.py";
+		// Read command line arguments
+		for(int i=0;i<args.length;){
+			String arg = args[i++];
+			switch(arg){
+			case "-debug":{
+				_debug=true;
+				break;
+			}
+			case "-file":{
+				scriptName = args[i++];
+				break;
+			}
+			}
+		}
 		// Redirect stdout
 		try{
 			PrintStream ps = new PrintStream(_log);
@@ -201,16 +214,15 @@ public class engine {
 		// Run header
 		_interpreter.exec("from __future__ import absolute_import, division, generators, unicode_literals, print_function, nested_scopes, with_statement");
 		_interpreter.exec("range=xrange\nint=long");
-		_interpreter.exec("class layermatrix:\n\tdef __init__(self,layer=None):\n\t\tself.layer=layer\n\tdef __enter__(self):\n\t\treturn pushmatrix(self.layer)\n\tdef __exit__(self,*args):\n\t\tpopmatrix()\n\t\treturn False");
+		_interpreter.exec("class layermatrix:\n\tdef __init__(self,layer=None):\n\t\tself.layer=getmatrix(-1) if layer is None else layer\n\tdef __enter__(self):\n\t\tpushmatrix(self.layer)\n\t\treturn getmatrix(-1)\n\tdef __exit__(self,*args):\n\t\tpopmatrix()\n\t\treturn False");
 		_interpreter.set("_jython", new PyInteger(1));
 		// Run script
 		try{
-			_interpreter.execfile("main.py");
+			_interpreter.execfile(scriptName);
 		}catch(Exception e){
 			e.printStackTrace();
-		}finally{
-			die();
 		}
+		die();
 	}
 	
 	/**
@@ -228,7 +240,9 @@ public class engine {
 		// Final garbage collection
 		System.gc();
 		// Delete log file
-		if(!new File(_log).delete())System.out.println("Unable to delete log file");
+		if(!new File(_log).delete()){
+			System.out.println("Unable to delete log file");
+		}
 		// Clean up frame
 		_frame.dispose();
 		// Clean up interpreter
@@ -238,6 +252,13 @@ public class engine {
 		System.exit(0);
 	}
 	
+	/**
+	 * Make a blank (0 alpha, black) image
+	 * 
+	 * @param width
+	 * @param height
+	 * @return
+	 */
 	public static BufferedImage blankimage(int width,int height){
 		BufferedImage result = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		result.setRGB(0, 0, width, height, new int[width], 0, 0);
@@ -755,7 +776,7 @@ public class engine {
 				sy = ymult.asDouble();
 				if(!Double.isFinite(sy))sy=0;
 			}
-			getmatrix(-1).shear(sx, sy);
+			getmatrix(-1).preConcatenate(AffineTransform.getShearInstance(sx, sy));
 		}
 	}
 	
@@ -824,7 +845,12 @@ public class engine {
 				if(!Double.isFinite(sy))sy=1;
 				if(Math.abs(sy)<1e-15)throw new IllegalArgumentException("zero or near zero x scale factor "+sy);
 			}
-			getmatrix(-1).scale(sx, sy);
+			AffineTransform at = getmatrix(-1);
+			double[] mat = new double[6];
+			at.getMatrix(mat);
+			mat[0]*=sx;mat[1]*=sx;
+			mat[2]*=sy;mat[3]*=sy;
+			at.setTransform(new AffineTransform(mat));
 		}
 	}
 	
@@ -848,16 +874,25 @@ public class engine {
 		if(rc){
 			if(dc){
 				throw new IllegalArgumentException("rotate key ("+okey+") must be either radians or degrees, both matched");
-			}else{
-				getmatrix(-1).rotate(angle);
 			}
 		}else{
 			if(dc){
-				getmatrix(-1).rotate(Math.toRadians(angle));
+				angle = Math.toRadians(angle);
 			}else{
 				throw new IllegalArgumentException("rotate key ("+okey+") must be either radians or degrees, neither matched");
 			}
 		}
+		double sin = Math.sin(angle), cos = Math.cos(angle);
+		AffineTransform at = getmatrix(-1);
+		double[] mat = new double[6];
+		at.getMatrix(mat);
+		double t1 = mat[0], t2 = mat[2];
+		mat[0] = cos*t1+sin*t2;
+		mat[2] = cos*t2-sin*t1;
+		t1 = mat[1];t2 = mat[3];
+		mat[1] = cos*t1+sin*t2;
+		mat[3] = cos*t2-sin*t1;
+		at.setTransform(new AffineTransform(mat));
 	}
 	
 	/**
@@ -919,7 +954,12 @@ public class engine {
 				dy = yoffset.asDouble();
 				if(!Double.isFinite(dy))dy=0;
 			}
-			getmatrix(-1).translate(dx, dy);
+			AffineTransform at = getmatrix(-1);
+			double[] mat = new double[6];
+			at.getMatrix(mat);
+			mat[4] = dx*mat[0]+dy*mat[2]+mat[4];
+			mat[5] = dx*mat[1]+dy*mat[3]+mat[5];
+			at.setTransform(new AffineTransform(mat));
 		}
 	}
 	
