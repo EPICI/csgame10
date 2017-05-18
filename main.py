@@ -27,16 +27,49 @@ resize(800,450)
 class textbutton:
     def __init__(self,text,y,func):
         self.func = func
+        setcolor(rgb=0.1)
         img = self.img = render(text)
         y *= 40
         iwidth = img.getWidth()
         self.x = 760-iwidth/2
-        self.y = y+20
-        self.bounds = [[740-iwidth,780],[y,y+40]]
+        y = self.y = y+20
+        bx,by = self.bounds = [[740-iwidth,800],[y-15,y+15]]
+        self.particles = [[
+            uniform(*bx),
+            uniform(*by),
+            uniform(-4,4),
+            uniform(-4,4),
+            uniform(-0.1,0.1),
+            uniform(-0.1,0.1)] for _ in range(6)]
     def hit(self,x,y):
         bx,by = self.bounds
         return bx[0]<=x<=bx[1] and by[0]<=y<=by[1]
     def draw(self):
+        global img_glow
+        bx,by = self.bounds
+        particles = self.particles
+        for i in range(len(particles)-1,-1,-1):
+            pc = particles[i]
+            pcx = pc[0]
+            if pcx>900 or pcx<-100:
+                particles.pop(i)
+        r = 2 # Spawning rate
+        while len(particles)<80 and r>0:
+            r -= 1
+            particles.append([
+                bx[0]-uniform(80,120),
+                uniform(by[0]-80,by[1]+80),
+                uniform(2,6),
+                uniform(-4,4),
+                uniform(-0.05,0.05),
+                uniform(-0.05,0.05)])
+        setpolyclip([[bx[1],by[1]],[bx[1],by[0]],[bx[0]+10,by[0]],[bx[0],(by[0]+by[1])/2],[bx[0]+10,by[1]]])
+        setcolor(rgb=0.97)
+        fill()
+        for pc in particles:
+            for i in range(4):
+                pc[i]+=pc[i+2]
+            drawimage(img_glow,pc[0:2])
         drawimage(self.img,(self.x,self.y))
     def act(self):
         self.func()
@@ -66,11 +99,11 @@ def incall(n):
 
 buttons = []
 i = 0
+img_glow = loadimage('glow1.png')
 
 for _ in mainloop():
     if i==0:incall(1)()
-    setcolor(rgb=(1,1,1))
+    setcolor(rgb=1.0)
     fill()
-    setcolor(rgb=(0,0,0))
     for button in buttons:
         button.draw()
