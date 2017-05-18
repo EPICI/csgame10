@@ -24,7 +24,6 @@ framerate(fps)
 resize(800,450)
 
 # Buttons
-
 class textbutton:
     def __init__(self,text,y,func):
         self.func = func
