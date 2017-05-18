@@ -4,4 +4,4 @@ See header in *main.py* for more info.
 
 *main.py* redirects to *engine.jar*, so you can run either and it will start the game.
 
-Jython 3.5 is not stable and therefore unfit for use. We are using Jython 2.7 with all *from __future__ import*s. This allows for easier rendering stuff. Java handles the low level graphics stuff, Python does all the fun stuff.
+Jython 3.5 is not stable and therefore unfit for use. We are using Jython 2.7 with all `from __future__ import`s. This allows for easier rendering stuff. Java handles the low level graphics stuff, Python does all the fun stuff.
