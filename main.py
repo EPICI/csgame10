@@ -23,38 +23,55 @@ framerate(fps)
 # Set base resolution
 resize(800,450)
 
-# Test code
-istr = 'typed: '
-cx = 400
-cy = 225
-def onkey(etype,ekey):
-    global istr
-    print('key',etype)
-    if etype=='type' and 32<ekey<126:
-        istr+=chr(ekey)
-bindkey('key event name',onkey)
-def onmouse(etype,exy,ebutton):
-    global cx
-    global cy
-    print('mouse',etype,ebutton)
-    if etype=='press' and ebutton==1:
-        cx,cy = exy
-bindmouse('mouse event name',onmouse)
-i = fps*30
-icon = loadimage('icon.png')
+# Buttons
+
+class textbutton:
+    def __init__(self,text,y,func):
+        self.func = func
+        img = self.img = render(text)
+        y *= 40
+        iwidth = img.getWidth()
+        self.x = 760-iwidth/2
+        self.y = y+20
+        self.bounds = [[740-iwidth,780],[y,y+40]]
+    def hit(self,x,y):
+        bx,by = self.bounds
+        return bx[0]<=x<=bx[1] and by[0]<=y<=by[1]
+    def draw(self):
+        drawimage(self.img,(self.x,self.y))
+    def act(self):
+        self.func()
+
+def onclick(etype,exy,ebutton):
+    global buttons
+    if etype=='click' and ebutton==1:
+        rbutton = None
+        for button in buttons:
+            if button.hit(*exy):
+                rbutton = button
+                break
+        if rbutton is not None:
+            rbutton.act()
+bindmouse('mouse event',onclick)
+
+def incall(n):
+    global i,buttons
+    def act():
+        global i,buttons
+        print('incremented by '+str(n))
+        i += n
+        buttons = []
+        for j in range(1,11):
+            buttons.append(textbutton(str(i+j)+' (+'+str(j)+')',j,incall(j)))
+    return act
+
+buttons = []
+i = 0
+
 for _ in mainloop():
-    i -= 1
-    if not i:break
-    img = render(istr) if len(istr)<10 else icon
-    r = i*0.02
+    if i==0:incall(1)()
     setcolor(rgb=(1,1,1))
     fill()
-    setpolyclip([[cx+200*cos(j*pi/30),cy+200*sin(j*pi/30)] for j in range(60)])
     setcolor(rgb=(0,0,0))
-    for _ in range(6):
-        r += 0.9
-        for radius in range(0,300,60):
-            drawimage(img,(cx+radius*cos(r),cy+radius*sin(r)))
-        img = alpha(img,0.8)
-
-
+    for button in buttons:
+        button.draw()
