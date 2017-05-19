@@ -173,17 +173,14 @@ def onclick(etype,exy,ebutton):
             rbutton.act()
 bindmouse('mouse event',onclick)
 
-def fw_clear_buttons(func):
+def clear_buttons():
     """
-    Returns a function that pushes away all current buttons and executes the given function
+    Gets rid of the current buttons
     """
-    def ifw_clear_buttons():
-        global buttons
-        for button in buttons:
-            button.x.target+=uniform(-40,40)
-            button.y.target=height+uniform(40,80)
-        func()
-    return ifw_clear_buttons
+    global buttons
+    for button in buttons:
+        button.x.target+=uniform(-40,40)
+        button.y.target=height+uniform(40,80)
 
 def fw_branch_to(*others):
     """
@@ -191,7 +188,7 @@ def fw_branch_to(*others):
     """
     def ifw_branch_to():
         global buttons
-        fw_clear_buttons(lambda:None)()
+        clear_buttons()
         for index,params in enumerate(others):
             text = params[0]
             func = params[1]
@@ -199,11 +196,31 @@ def fw_branch_to(*others):
             buttons.append(choice_button(text,index,func))
     return ifw_branch_to
 
+def fw_exec_all(*funcs):
+    """
+    Return a function which executes all functions in order
+    """
+    def ifw_exec_all():
+        for func in funcs:
+            if type(func)==str:func = globals()[func]
+            func()
+    return ifw_exec_all
+
+def fw_meter_add(increment):
+    """
+    Return a function which adds increment to the love meter
+    """
+    def ifw_meter_add():
+        global love_meter
+        love_meter.target += increment
+    return ifw_meter_add
+
 # Initialize globals
 setfont(None,-1,24)
+love_meter = drift(0.05,0.5,0.5) # 0 = hate, 1 = love
 buttons = []
 button_glow = [loadimage('glow1.png'),loadimage('glow2.png')]
-particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,400,1) for _ in range(8)]
+particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,500,1) for _ in range(8)]
 for particles in particle_systems:
     for _ in range(100):
         particles.step()
