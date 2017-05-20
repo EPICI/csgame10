@@ -135,7 +135,7 @@ class choice_button:
         Pass flag hover to indicate if the mouse is hovering
         """
         global width,height,button_glow,particle_systems
-        img_glow = button_glow[hover]
+        img_glow = button_glow[4 if hover else 0]
         particles = particle_systems[self.index]
         setcolor(rgb=0.02)
         image = render(self.text)
@@ -187,7 +187,7 @@ def draw_meter():
         px,py = particle[0:2]
         drawimage(img_glow,(px,py))
     # Upper half
-    img_glow = button_glow[1]
+    img_glow = button_glow[3]
     setpolyclip([[ix-30,height-40],[ix,height-30],[ix+30,height-40],[ix+30,iy],[ix-30,iy]])
     setcolor(rgb=0.95)
     fill()
@@ -340,7 +340,7 @@ timer_size = drift(0.1,80)
 timer_y = drift(0.1,height+300)
 timer_particle_system = particle_system([[-80,80],[80,200]],[[-1,1],[-2,0]],[[-0.01,0.01],[-0.01,0.01]],300,200,1)
 buttons = []
-button_glow = [loadimage('glow1.png'),loadimage('glow2.png'),loadimage('glow3.png')]
+button_glow = [loadimage('glow'+str(i)+'.png') for i in range(1,6)]
 particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,500,1) for _ in range(8)]
 for particles in particle_systems+[love_meter_particle_system,timer_particle_system]:
     for _ in range(100):
