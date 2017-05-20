@@ -32,8 +32,8 @@ class drift:
     """
     def __init__(self,rate,target=0.0,value=None):
         self.rate = rate
-        self.target = target
-        self.value = target if value is None else value
+        self.target = float(target)
+        self.value = float(target if value is None else value)
     def step(self):
         """
         Go forward one step
@@ -48,7 +48,7 @@ class drift:
         """
         Ensure float() gets the current value
         """
-        return float(self.value)
+        return self.value
 
 class image_sequence:
     """
@@ -116,7 +116,7 @@ class choice_button:
         image = render(text) # Dummy, use to get width
         self.width = iwidth = image.getWidth()
         self.x = drift(0.1,width-iwidth/2-40,width+iwidth/2+40)
-        self.y = drift(0.1,height-index*50-30,height-index*50-30)
+        self.y = drift(0.1,height-index*50-70,height-index*50-70)
     def hit(self,xy):
         """
         Does the point xy lie on the button?
@@ -161,6 +161,43 @@ class choice_button:
         Perform the action it was supposed to do
         """
         self.action()
+
+def draw_meter():
+    """
+    Handles rendering of love meter
+    """
+    global width,height,love_meter,love_meter_x,love_meter_particle_system,button_glow
+    love_meter_x.step()
+    love_meter.step()
+    ix = float(love_meter_x)
+    if ix<-160:return
+    iy = float(love_meter)
+    if iy<0:iy=0
+    if iy>1:iy=1
+    iy = 40+(height-80)*iy
+    love_meter_particle_system.step()
+    particles = love_meter_particle_system.particles
+    # Lower half
+    img_glow = button_glow[0]
+    setpolyclip([[ix-30,40],[ix,30],[ix+30,40],[ix+30,iy],[ix-30,iy]])
+    setcolor(rgb=0.95)
+    fill()
+    for particle in particles:
+        px,py = particle[0:2]
+        drawimage(img_glow,(px,py))
+    # Upper half
+    img_glow = button_glow[1]
+    setpolyclip([[ix-30,height-40],[ix,height-30],[ix+30,height-40],[ix+30,iy],[ix-30,iy]])
+    setcolor(rgb=0.95)
+    fill()
+    for particle in particles:
+        px,py = particle[0:2]
+        drawimage(img_glow,(px,py))
+    # Text
+    setpolyclip()
+    setcolor(rgb=0.02)
+    drawimage(render('Hate'),(ix+40,40),xalign=0)
+    drawimage(render('Love'),(ix+40,height-40),xalign=0)
 
 def onclick(etype,exy,ebutton):
     global buttons
@@ -215,13 +252,30 @@ def fw_meter_add(increment):
         love_meter.target += increment
     return ifw_meter_add
 
+def meter_status(enabled):
+    """
+    Set meter to either show or not be shown
+    """
+    global love_meter_x
+    love_meter_x.target = 60 if enabled else -200
+
+def fw_meter_status(enabled):
+    """
+    Return a function which sets the love meter status to enabled
+    """
+    def ifw_meter_status():
+        meter_status(enabled)
+    return ifw_meter_status
+
 # Initialize globals
 setfont(None,-1,24)
-love_meter = drift(0.05,0.5,0.5) # 0 = hate, 1 = love
+love_meter = drift(0.03,0.5) # 0 = hate, 1 = love
+love_meter_x = drift(0.03,-200)
+love_meter_particle_system = particle_system([[-200,-80],[0,height]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height,500,1)
 buttons = []
-button_glow = [loadimage('glow1.png'),loadimage('glow2.png')]
+button_glow = [loadimage('glow1.png'),loadimage('glow2.png'),loadimage('glow3.png')]
 particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,500,1) for _ in range(8)]
-for particles in particle_systems:
+for particles in particle_systems+[love_meter_particle_system]:
     for _ in range(100):
         particles.step()
 
@@ -230,7 +284,8 @@ p_menu_1 = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p
 p_menu_2 = fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2'])
 p_menu_3 = fw_branch_to(['3 -> 1','p_menu_1'],['3 -> 2','p_menu_2'],['3 -> 3','p_menu_3'],['3 -> 4','p_menu_4'])
 p_menu_4 = fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2'])
-fw_branch_to(['1 >>',p_menu_1],['2 >>',p_menu_2],['3 >>',p_menu_3],['4 >>',p_menu_4])()
+p_menu_5 = fw_branch_to(['1 >>',p_menu_1],['2 >>',p_menu_2],['3 >>',p_menu_3],['4 >>',p_menu_4])
+fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_5)])()
 
 # Drivers and rendering
 for _ in mainloop():
@@ -242,3 +297,4 @@ for _ in mainloop():
         button.draw(button.hit(mouse_xy))
         if float(button.y)>height+20:
             buttons.pop(i)
+    draw_meter()
