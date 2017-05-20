@@ -115,7 +115,7 @@ class choice_button:
         self.text = text
         image = render(text) # Dummy, use to get width
         self.width = iwidth = image.getWidth()
-        self.x = drift(0.1,width-iwidth/2-40,width+iwidth/2+40)
+        self.x = drift(0.1,width-40,width+iwidth)
         self.y = drift(0.1,height-index*50-70,height-index*50-70)
     def hit(self,xy):
         """
@@ -128,7 +128,7 @@ class choice_button:
         if hypot(ix.diff(),iy.diff())>10:return False
         ix = float(ix)
         iy = float(iy)
-        return ix-iwidth/2-20<=xy[0] and iy-20<=xy[1]<=iy+20
+        return ix-iwidth-40<=xy[0] and iy-20<=xy[1]<=iy+20
     def draw(self,hover):
         """
         Render the button
@@ -137,14 +137,16 @@ class choice_button:
         global width,height,button_glow,particle_systems
         img_glow = button_glow[hover]
         particles = particle_systems[self.index]
-        iwidth = self.width
+        setcolor(rgb=0.02)
+        image = render(self.text)
+        self.width = iwidth = image.getWidth()
         ix = self.x
         iy = self.y
         ix.step()
         iy.step()
         ix = float(ix)
         iy = float(iy)
-        left = ix-iwidth/2-20
+        left = ix-iwidth-40
         by = iy-20,iy+20
         setpolyclip([[width,by[0]],[width,by[1]],[left+10,by[1]],[left,iy],[left+10,by[0]]])
         setcolor(rgb=0.95)
@@ -154,8 +156,7 @@ class choice_button:
         for particle in particles.particles:
             px,py = particle[0:2]
             drawimage(img_glow,(px+ox,py+oy))
-        setcolor(rgb=0.02)
-        drawimage(render(self.text),(ix,iy))
+        drawimage(image,(ix,iy),xalign=1)
     def act(self):
         """
         Perform the action it was supposed to do
@@ -199,6 +200,45 @@ def draw_meter():
     drawimage(render('Hate'),(ix+40,40),xalign=0)
     drawimage(render('Love'),(ix+40,height-40),xalign=0)
 
+def draw_timer():
+    """
+    Handles drawing of timer
+    Also does updating
+    """
+    global width,height,timer_time,timer_func,timer_y,timer_particle_system,timer_size,button_glow
+    timer_y.step()
+    ox,oy = width/2,float(timer_y)
+    timer_str = '0.0'
+    if timer_time:
+        timer_y.target = height
+        timer_remaining = timer_time-time()
+        if timer_remaining>0:
+            timer_size.target = 400/(timer_remaining+5)
+            timer_str = str(timer_remaining)[:4]
+        else:
+            timer_time = None
+            timer_func()
+    else:
+        timer_y.target = height+300
+        timer_size.target = 40
+    timer_size.step()
+    itimer_size = float(timer_size)
+    timer_radius = itimer_size*1.8
+    if oy<height+timer_radius:
+        setpolyclip([[ox+timer_radius*cos(i*pi/32),oy+timer_radius*sin(i*pi/32)] for i in range(64)])
+        setcolor(rgb=0.95)
+        fill()
+        img_glow = button_glow[2]
+        timer_particle_system.step()
+        for particle in timer_particle_system.particles:
+            px,py = particle[0:2]
+            drawimage(img_glow,(px+ox,py+oy))
+    setfont(None,-1,int(itimer_size))
+    setpolyclip()
+    setcolor(rgb=0.02)
+    timer_img = render(timer_str)
+    drawimage(timer_img,(ox,oy),yalign=1.2)
+
 def onclick(etype,exy,ebutton):
     global buttons
     if etype=='click' and ebutton==1:
@@ -226,6 +266,7 @@ def fw_branch_to(*others):
     def ifw_branch_to():
         global buttons
         clear_buttons()
+        timer_set(None)
         for index,params in enumerate(others):
             text = params[0]
             func = params[1]
@@ -267,15 +308,41 @@ def fw_meter_status(enabled):
         meter_status(enabled)
     return ifw_meter_status
 
+def timer_set(seconds,func=None):
+    """
+    Set the timer to last a certain number of seconds, then call func
+    Call with None, 0, False, etc. to disable the timer
+    """
+    global timer_time,timer_func
+    if seconds:
+        if type(func)==str:func=globals()[func]
+        timer_time = time()+seconds
+        timer_func = func
+    else:
+        timer_time = None
+
+def fw_timer_set(seconds,func=None):
+    """
+    Return a function to set the timer later
+    """
+    def ifw_timer_set():
+        timer_set(seconds,func)
+    return ifw_timer_set
+
 # Initialize globals
 setfont(None,-1,24)
 love_meter = drift(0.03,0.5) # 0 = hate, 1 = love
 love_meter_x = drift(0.03,-200)
 love_meter_particle_system = particle_system([[-200,-80],[0,height]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height,500,1)
+timer_time = None
+timer_func = None
+timer_size = drift(0.1,80)
+timer_y = drift(0.1,height+300)
+timer_particle_system = particle_system([[-80,80],[80,200]],[[-1,1],[-2,0]],[[-0.01,0.01],[-0.01,0.01]],300,200,1)
 buttons = []
 button_glow = [loadimage('glow1.png'),loadimage('glow2.png'),loadimage('glow3.png')]
 particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,500,1) for _ in range(8)]
-for particles in particle_systems+[love_meter_particle_system]:
+for particles in particle_systems+[love_meter_particle_system,timer_particle_system]:
     for _ in range(100):
         particles.step()
 
@@ -283,18 +350,21 @@ for particles in particle_systems+[love_meter_particle_system]:
 p_menu_1 = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p_menu_1'])
 p_menu_2 = fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2'])
 p_menu_3 = fw_branch_to(['3 -> 1','p_menu_1'],['3 -> 2','p_menu_2'],['3 -> 3','p_menu_3'],['3 -> 4','p_menu_4'])
-p_menu_4 = fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2'])
-p_menu_5 = fw_branch_to(['1 >>',p_menu_1],['2 >>',p_menu_2],['3 >>',p_menu_3],['4 >>',p_menu_4])
-fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_5)])()
+p_menu_4 = fw_exec_all(fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2']),fw_timer_set(10,'p_menu_5'))
+p_menu_5 = fw_branch_to(['5 -> 1','p_menu_1'],['5 -> 2','p_menu_2'],['5 -> 4','p_menu_4'])
+p_menu_6 = fw_branch_to(['1 >>',p_menu_1],['2 >>',p_menu_2],['3 >>',p_menu_3],['4 >>',p_menu_4])
+fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_6)])()
 
 # Drivers and rendering
 for _ in mainloop():
     mouse_x,mouse_y = mouse_xy = mousepos()
     setcolor(rgb=1.0)
     fill()
+    setfont(None,-1,24)
     for i in range(len(buttons)-1,-1,-1):
         button = buttons[i]
         button.draw(button.hit(mouse_xy))
         if float(button.y)>height+20:
             buttons.pop(i)
     draw_meter()
+    draw_timer()
