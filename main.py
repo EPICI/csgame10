@@ -1,8 +1,6 @@
 """
-Async by Rudy Li and Faith Lum
-For ICS2O1 (Mr.Cope) summative
-
-plz fix this senpai
+Contingency by Rudy Li and Faith Lum
+For ICS2O1 (Mr.Cope) summative 2017
 """
 
 # The header sets this dummy variable, so we treat its existence as a flag
