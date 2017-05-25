@@ -101,6 +101,52 @@ class particle_system:
             for i in range(4):
                 particle[i] += particle[i+2]
 
+class caption:
+    """
+    Some text and other data, collectively representing a caption
+    """
+    def __init__(self,texts,colors=None):
+        global width,height
+        self.texts = texts.split('\n') if type(texts)==str else list(map(str,texts)) # Force string type
+        self.x = drift(0.1,width/2)
+        self.y = drift(0.1,200,120)
+        self.alpha = drift(0.1,1,0) # Alpha
+        self.color = {'rgb':0} if colors is None else {colors[0]:colors[1]}
+    def alive(self):
+        """
+        Is it live?
+        Return false to signal it needs to die
+        """
+        return float(self.alpha)>=0
+    def kill(self):
+        """
+        Time to die
+        """
+        self.y.target = 240
+        self.alpha.target = -0.1
+    def draw(self):
+        """
+        Render the caption
+        """
+        global width,height
+        setfont(None,-1,30)
+        setcolor(**self.color)
+        setpolyclip()
+        x = self.x
+        y = self.y
+        x.step()
+        y.step()
+        x = float(x)
+        y = float(y)
+        ialpha = self.alpha
+        ialpha.step()
+        ialpha = float(ialpha)
+        if ialpha<=0:return
+        for text in self.texts:
+            image = alpha(render(text),ialpha)
+            drawimage(image,(x,y))
+            y -= 40
+
 class choice_button:
     """
     A button representing a choice
@@ -114,7 +160,7 @@ class choice_button:
         image = render(text) # Dummy, use to get width
         self.width = iwidth = image.getWidth()
         self.x = drift(0.1,width-40,width+iwidth)
-        self.y = drift(0.1,height-index*50-70,height-index*50-70)
+        self.y = drift(0.1,height-index*50-70)
     def hit(self,xy):
         """
         Does the point xy lie on the button?
@@ -133,9 +179,9 @@ class choice_button:
         Pass flag hover to indicate if the mouse is hovering
         """
         global width,height,button_glow,particle_systems
+        setcolor(rgb=0.02)
         img_glow = button_glow[4 if hover else 0]
         particles = particle_systems[self.index]
-        setcolor(rgb=0.02)
         image = render(self.text)
         self.width = iwidth = image.getWidth()
         ix = self.x
@@ -146,8 +192,8 @@ class choice_button:
         iy = float(iy)
         left = ix-iwidth-40
         by = iy-20,iy+20
-        setpolyclip([[width,by[0]],[width,by[1]],[left+10,by[1]],[left,iy],[left+10,by[0]]])
         setcolor(rgb=0.95)
+        setpolyclip([[width,by[0]],[width,by[1]],[left+10,by[1]],[left,iy],[left+10,by[0]]])
         fill()
         particles.step()
         ox,oy = width,iy
@@ -177,24 +223,24 @@ def draw_meter():
     love_meter_particle_system.step()
     particles = love_meter_particle_system.particles
     # Lower half
+    setcolor(rgb=0.95)
     img_glow = button_glow[0]
     setpolyclip([[ix-30,40],[ix,30],[ix+30,40],[ix+30,iy],[ix-30,iy]])
-    setcolor(rgb=0.95)
     fill()
     for particle in particles:
         px,py = particle[0:2]
         drawimage(img_glow,(px,py))
     # Upper half
+    setcolor(rgb=0.95)
     img_glow = button_glow[3]
     setpolyclip([[ix-30,height-40],[ix,height-30],[ix+30,height-40],[ix+30,iy],[ix-30,iy]])
-    setcolor(rgb=0.95)
     fill()
     for particle in particles:
         px,py = particle[0:2]
-        drawimage(img_glow,(px,py))
+        drawimage(img_glow,(px,py+height/2))
     # Text
-    setpolyclip()
     setcolor(rgb=0.02)
+    setpolyclip()
     drawimage(render('Hate'),(ix+40,40),xalign=0)
     drawimage(render('Love'),(ix+40,height-40),xalign=0)
 
@@ -223,21 +269,50 @@ def draw_timer():
     itimer_size = float(timer_size)
     timer_radius = itimer_size*1.8
     if oy<height+timer_radius:
-        setpolyclip([[ox+timer_radius*cos(i*pi/32),oy+timer_radius*sin(i*pi/32)] for i in range(64)])
         setcolor(rgb=0.95)
+        setpolyclip([[ox+timer_radius*cos(i*pi/32),oy+timer_radius*sin(i*pi/32)] for i in range(64)])
         fill()
         img_glow = button_glow[2]
         timer_particle_system.step()
         for particle in timer_particle_system.particles:
             px,py = particle[0:2]
             drawimage(img_glow,(px+ox,py+oy))
+    setcolor(rgb=0.02)
     setfont(None,-1,int(itimer_size))
     setpolyclip()
-    setcolor(rgb=0.02)
     timer_img = render(timer_str)
     drawimage(timer_img,(ox,oy),yalign=1.2)
 
+def draw_captions():
+    """
+    Handles drawing of captions
+    """
+    global width,height,captions,caption_y,caption_particle_system,button_glow
+    for i in range(len(captions)-1,-1,-1):
+        capt = captions[i]
+        if not capt.alive():
+            captions.pop(i)
+    caption_y.target = 0 if len(captions) else -250
+    caption_y.step()
+    ox,oy = width/2,float(caption_y)
+    if oy>-230:
+        bx = 240,width-240
+        by = 0,oy+230
+        setcolor(rgb=0.95)
+        setpolyclip([[bx[0]-40,by[0]],[bx[1]+40,by[0]],[bx[1],by[1]],[bx[0],by[1]]])
+        fill()
+        img_glow = button_glow[1]
+        caption_particle_system.step()
+        for particle in caption_particle_system.particles:
+            px,py = particle[0:2]
+            drawimage(img_glow,(px+ox,py+oy))
+        for capt in captions:
+            capt.draw()
+
 def onclick(etype,exy,ebutton):
+    """
+    Handles mouse events
+    """
     global buttons
     if etype=='click' and ebutton==1:
         rbutton = None
@@ -257,6 +332,14 @@ def clear_buttons():
         button.x.target+=uniform(-40,40)
         button.y.target=height+uniform(40,80)
 
+def clear_captions():
+    """
+    Gets rid of the current captions
+    """
+    global captions
+    for capt in captions:
+        capt.kill()
+
 def fw_branch_to(*others):
     """
     Returns a function which pushes away all current buttons and adds the given buttons
@@ -264,6 +347,7 @@ def fw_branch_to(*others):
     def ifw_branch_to():
         global buttons
         clear_buttons()
+        clear_captions()
         timer_set(None)
         for index,params in enumerate(others):
             text = params[0]
@@ -327,25 +411,42 @@ def fw_timer_set(seconds,func=None):
         timer_set(seconds,func)
     return ifw_timer_set
 
+def fw_caption_set(*args):
+    """
+    Return a function to clear all captions and set it to the given
+    """
+    def ifw_caption_set():
+        global captions
+        clear_captions()
+        captions.append(caption(*args))
+    return ifw_caption_set
+
 # Initialize globals
+base_particles = 100
 setfont(None,-1,24)
 love_meter = drift(0.03,0.5) # 0 = hate, 1 = love
 love_meter_x = drift(0.03,-200)
-love_meter_particle_system = particle_system([[-200,-80],[0,height]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height,500,1)
+love_meter_particle_system = particle_system([[-200,-80],[-height/2,height/2]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height/2+100,5*base_particles,1)
 timer_time = None
 timer_func = None
 timer_size = drift(0.1,80)
 timer_y = drift(0.1,height+300)
-timer_particle_system = particle_system([[-80,80],[80,200]],[[-1,1],[-2,0]],[[-0.01,0.01],[-0.01,0.01]],300,200,1)
+timer_particle_system = particle_system([[-80,80],[80,200]],[[-1,1],[-2,0]],[[-0.01,0.01],[-0.01,0.01]],300,2*base_particles,1)
+captions = []
+caption_y = drift(0.1,-250)
+caption_particle_system = particle_system([[-width/2,width/2],[-200,-80]],[[-1,1],[0,2]],[[-0.01,0.01],[-0.01,0.01]],width,10*base_particles,2)
 buttons = []
 button_glow = [loadimage('glow'+str(i)+'.png') for i in range(1,6)]
-particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,500,1) for _ in range(8)]
-for particles in particle_systems+[love_meter_particle_system,timer_particle_system]:
-    for _ in range(100):
+particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,5*base_particles,1) for _ in range(8)]
+for particles in particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
+    for _ in range(200):
         particles.step()
 
 # Test menu items
-p_menu_1 = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p_menu_1'])
+p_menu_1 = fw_exec_all(fw_branch_to(['...','p_menu_1a']),fw_caption_set('So basically'),)
+p_menu_1a = fw_exec_all(fw_branch_to(['...','p_menu_1b']),fw_caption_set('This is how dialogue will work'))
+p_menu_1b = fw_exec_all(fw_branch_to(['...','p_menu_1c']),fw_caption_set('We\'ll give each character\ntheir own colour\nor something like that',('hsv',(0.6,0.8,0.8))))
+p_menu_1c = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p_menu_1'])
 p_menu_2 = fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2'])
 p_menu_3 = fw_branch_to(['3 -> 1','p_menu_1'],['3 -> 2','p_menu_2'],['3 -> 3','p_menu_3'],['3 -> 4','p_menu_4'])
 p_menu_4 = fw_exec_all(fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2']),fw_timer_set(10,'p_menu_5'))
@@ -366,3 +467,4 @@ for _ in mainloop():
             buttons.pop(i)
     draw_meter()
     draw_timer()
+    draw_captions()
