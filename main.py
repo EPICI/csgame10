@@ -112,18 +112,20 @@ class caption:
         self.y = drift(0.1,200,120)
         self.alpha = drift(0.1,1,0) # Alpha
         self.color = {'rgb':0} if colors is None else {colors[0]:colors[1]}
+        self.live = 2
     def alive(self):
         """
         Is it live?
-        Return false to signal it needs to die
+        Uses bitmask to signal
         """
-        return float(self.alpha)>=0
+        return self.live|(float(self.alpha)>=0)
     def kill(self):
         """
         Time to die
         """
         self.y.target = 240
         self.alpha.target = -0.1
+        self.live = 0
     def draw(self):
         """
         Render the caption
@@ -291,9 +293,12 @@ def draw_captions():
     global width,height,captions,caption_y,caption_particle_system,button_glow
     for i in range(len(captions)-1,-1,-1):
         capt = captions[i]
-        if not capt.alive():
+        if not capt.alive()&1:
             captions.pop(i)
-    caption_y.target = 0 if len(captions) else -250
+    anyd = False
+    for capt in captions:
+        anyd |= capt.alive()&2
+    caption_y.target = 0 if anyd else -250
     caption_y.step()
     ox,oy = width/2,float(caption_y)
     if oy>-230:
