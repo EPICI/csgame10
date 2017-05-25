@@ -210,6 +210,20 @@ class choice_button:
         """
         self.action()
 
+def draw_buttons():
+    """
+    Handles rendering of buttons
+    """
+    global buttons,mouse_xy
+    setcolor(rgb=0.95)
+    fill()
+    setfont(None,-1,24)
+    for i in range(len(buttons)-1,-1,-1):
+        button = buttons[i]
+        button.draw(button.hit(mouse_xy)&2)
+        if float(button.y)>height+20:
+            buttons.pop(i)
+
 def draw_meter():
     """
     Handles rendering of love meter
@@ -479,6 +493,7 @@ particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02
 for particles in particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
     for _ in range(200):
         particles.step()
+mouse_x,mouse_y = mouse_xy = 0,0
 
 # Test menu items
 p_menu_1 = fw_exec_all(fw_branch_to(['...','p_menu_1a']),fw_caption_set('So basically'),)
@@ -496,14 +511,7 @@ fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_6)])()
 # Drivers and rendering
 for _ in mainloop():
     mouse_x,mouse_y = mouse_xy = mousepos()
-    setcolor(rgb=1.0)
-    fill()
-    setfont(None,-1,24)
-    for i in range(len(buttons)-1,-1,-1):
-        button = buttons[i]
-        button.draw(button.hit(mouse_xy)&2)
-        if float(button.y)>height+20:
-            buttons.pop(i)
+    draw_buttons()
     draw_meter()
     draw_timer()
     draw_captions()
