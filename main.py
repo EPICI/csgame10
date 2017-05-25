@@ -71,6 +71,33 @@ class image_sequence:
         """
         drawimage(self.images[self.frame],*args,**kwargs)
 
+class image_sequence_loader:
+    """
+    Loads image sequence from iterable
+    Does not load images until they are needed by default
+    Can unload
+    """
+    def __init__(self,*args):
+        self.seq = None
+        self.args = args
+    def fetch(self):
+        """
+        Get the image sequence, will load if not loaded
+        """
+        if self.seq is None:
+            self.load()
+        return self.seq
+    def load(self):
+        """
+        Force the image sequence to load
+        """
+        self.seq = image_sequence(*self.args)
+    def unload(self):
+        """
+        Unload the image sequence to free memory
+        """
+        self.seq = None
+
 class particle_system:
     """
     A simple acceleration-based particle system
