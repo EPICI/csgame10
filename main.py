@@ -164,15 +164,16 @@ class choice_button:
     def hit(self,xy):
         """
         Does the point xy lie on the button?
-        If still transitioning, will return False unconditionally
+        Also, is it still transitioning?
+        Uses bitmask indicator
         """
         iwidth = self.width
         ix = self.x
         iy = self.y
-        if hypot(ix.diff(),iy.diff())>10:return False
+        ready = hypot(ix.diff(),iy.diff())<20
         ix = float(ix)
         iy = float(iy)
-        return ix-iwidth-40<=xy[0] and iy-20<=xy[1]<=iy+20
+        return ((ix-iwidth-40<=xy[0] and iy-20<=xy[1]<=iy+20)<<1)|ready
     def draw(self,hover):
         """
         Render the button
@@ -229,7 +230,7 @@ def draw_meter():
     fill()
     for particle in particles:
         px,py = particle[0:2]
-        drawimage(img_glow,(px,py))
+        drawimage(img_glow,(px,py+height/2))
     # Upper half
     setcolor(rgb=0.95)
     img_glow = button_glow[3]
@@ -316,11 +317,17 @@ def onclick(etype,exy,ebutton):
     global buttons
     if etype=='click' and ebutton==1:
         rbutton = None
+        ready = []
         for button in buttons:
-            if button.hit(exy):
+            bhit = button.hit(exy)
+            if bhit&1:
+                ready.append(button)
+            if bhit==3:
                 rbutton = button
         if rbutton is not None:
             rbutton.act()
+        elif len(ready)==1:
+            ready[0].act()
 bindmouse('mouse event',onclick)
 
 def clear_buttons():
@@ -390,6 +397,21 @@ def fw_meter_status(enabled):
         meter_status(enabled)
     return ifw_meter_status
 
+def fw_meter_condition(oper,value,if_true,if_false):
+    """
+    Return a function which branches based on the criteria
+    """
+    global comparators,love_meter
+    comp = comparators[oper]
+    if not if_true:if_true = lambda:None
+    if not if_false:if_false = lambda:None
+    def ifw_meter_condition():
+        if comp(love_meter.target,value):
+            if_true()
+        else:
+            if_false()
+    return ifw_meter_condition
+
 def timer_set(seconds,func=None):
     """
     Set the timer to last a certain number of seconds, then call func
@@ -421,6 +443,17 @@ def fw_caption_set(*args):
         captions.append(caption(*args))
     return ifw_caption_set
 
+# Comparators
+epsilon = 1e-9
+comparators = {
+    '>':(lambda x,y:x-y>epsilon),
+    '>=':(lambda x,y:x-y>-epsilon),
+    '<':(lambda x,y:y-x>epsilon),
+    '<=':(lambda x,y:y-x>-epsilon),
+    '==':(lambda x,y:abs(x-y)<epsilon),
+    '!=':(lambda x,y:abs(x-y)>epsilon)
+    }
+
 # Initialize globals
 base_particles = 100
 setfont(None,-1,24)
@@ -447,7 +480,8 @@ p_menu_1 = fw_exec_all(fw_branch_to(['...','p_menu_1a']),fw_caption_set('So basi
 p_menu_1a = fw_exec_all(fw_branch_to(['...','p_menu_1b']),fw_caption_set('This is how dialogue will work'))
 p_menu_1b = fw_exec_all(fw_branch_to(['...','p_menu_1c']),fw_caption_set('We\'ll give each character\ntheir own colour\nor something like that',('hsv',(0.6,0.8,0.8))))
 p_menu_1c = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p_menu_1'])
-p_menu_2 = fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2'])
+p_menu_2 = fw_meter_condition('>',0.2,fw_exec_all(fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2']),fw_meter_add(-0.15)),fw_branch_to(['uh oh','p_menu_2b']))
+p_menu_2b = fw_exec_all(fw_branch_to(['to 2','p_menu_2'],['to 4','p_menu_4']),fw_caption_set('Love metred'),fw_meter_add(0.5))
 p_menu_3 = fw_branch_to(['3 -> 1','p_menu_1'],['3 -> 2','p_menu_2'],['3 -> 3','p_menu_3'],['3 -> 4','p_menu_4'])
 p_menu_4 = fw_exec_all(fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2']),fw_timer_set(10,'p_menu_5'))
 p_menu_5 = fw_branch_to(['5 -> 1','p_menu_1'],['5 -> 2','p_menu_2'],['5 -> 4','p_menu_4'])
@@ -462,7 +496,7 @@ for _ in mainloop():
     setfont(None,-1,24)
     for i in range(len(buttons)-1,-1,-1):
         button = buttons[i]
-        button.draw(button.hit(mouse_xy))
+        button.draw(button.hit(mouse_xy)&2)
         if float(button.y)>height+20:
             buttons.pop(i)
     draw_meter()
