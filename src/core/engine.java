@@ -695,6 +695,7 @@ public class engine {
 				PyObject[] pair = getpairfrom(value,true);
 				xal = pair[0];
 				yal = pair[1];
+				break;
 			}
 			default:throw new IllegalArgumentException("alignment key ("+key+") not recognized");
 			}
