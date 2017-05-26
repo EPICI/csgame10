@@ -23,6 +23,26 @@ width = 1280
 height = 720
 resize(width,height)
 
+class weighted_choice:
+    """
+    A weighted choice
+    """
+    def __init__(self,objs):
+        if not objs:raise AssertionError('Need at least one choice')
+        if type(objs)==dict:objs = objs.items()
+        mul = 1/sum(map(lambda x:x[1],objs))
+        self.opt = opt = []
+        pfx = 0
+        for v,w in objs:
+            pfx += w*mul
+            opt.append([v,pfx])
+    def choose(self):
+        opt = self.opt
+        x = random()
+        for v,w in opt:
+            if w>x:return v
+        return opt[-1] # Blame rounding errors
+
 class drift:
     """
     Gradually moves towards the target/true value
@@ -65,11 +85,24 @@ class image_sequence:
         self.frame += 1
         if self.frame>=frames: # Loop behaviour
             self.frame = 0 if self.loop else frames-1
-    def draw(*args,**kwargs):
+    def atend(self):
+        """
+        Is it at the end of the sequence?
+        """
+        return self.frame>=self.frames
+    def reset(self):
+        """
+        Go back to the beginning
+        """
+        self.frame = 0
+    def draw(ialpha,*args,**kwargs):
         """
         Draws the current frame
         """
-        drawimage(self.images[self.frame],*args,**kwargs)
+        if not ialpha or ialpha>0.998:
+            drawimage(self.images[self.frame],*args,**kwargs)
+        elif ialpha>0.002:
+            drawimage(alpha(self.images[self.frame],ialpha),*args,**kwargs)
 
 class image_sequence_loader:
     """
@@ -87,6 +120,11 @@ class image_sequence_loader:
         if self.seq is None:
             self.load()
         return self.seq
+    def loaded(self):
+        """
+        Is it loaded?
+        """
+        return self.seq is not None
     def load(self):
         """
         Force the image sequence to load
@@ -136,7 +174,7 @@ class caption:
         global width,height
         self.texts = texts.split('\n') if type(texts)==str else list(map(str,texts)) # Force string type
         self.x = drift(0.1,width/2)
-        self.y = drift(0.1,200,120)
+        self.y = drift(0.1,150,100)
         self.alpha = drift(0.1,1,0) # Alpha
         self.color = {'rgb':0} if colors is None else {colors[0]:colors[1]}
         self.live = 2
@@ -150,7 +188,7 @@ class caption:
         """
         Time to die
         """
-        self.y.target = 240
+        self.y.target = 200
         self.alpha.target = -0.1
         self.live = 0
     def draw(self):
@@ -208,10 +246,10 @@ class choice_button:
         Render the button
         Pass flag hover to indicate if the mouse is hovering
         """
-        global width,height,button_glow,particle_systems
+        global width,height,button_glow,button_particle_systems
         setcolor(rgb=0.02)
         img_glow = button_glow[4 if hover else 0]
-        particles = particle_systems[self.index]
+        particles = button_particle_systems[self.index]
         image = render(self.text)
         self.width = iwidth = image.getWidth()
         ix = self.x
@@ -236,6 +274,44 @@ class choice_button:
         Perform the action it was supposed to do
         """
         self.action()
+
+class character:
+    """
+    Animation set for a character
+    """
+    def __init__(self,animset,start=None):
+        global width,height
+        self.x = drift(0.1,width/2)
+        self.y = drift(0.1,height/2)
+        self.alpha = drift(0.1,0)
+        if type(animset)==dict:animset = animset.items()
+        self.anims = anims = {}
+        for name,group in animset:
+            filenames,redir = group
+            anims[name] = [image_sequence_loader(filenames,False),weighted_choice(redir)]
+        self.current = start if start else animset[0][0]
+    def draw(self):
+        """
+        Render the current animation frame
+        """
+        ix = self.x
+        iy = self.y
+        ialpha = self.alpha
+        ix.step()
+        iy.step()
+        ialpha.step()
+        ix = float(ix)
+        iy = float(iy)
+        ialpha = float(ialpha)
+        if ialpha<=0:return
+        iseql,redir = self.anims[self.current]
+        iseq = iseql.fetch()
+        iseq.draw(ialpha,(ix,iy))
+        iseq.step()
+        if iseq.atend():
+            self.current = current = redir.choose()
+            iseql = self.anims[current][0]
+            if iseql.loaded():iseql.fetch().reset()
 
 def draw_buttons():
     """
@@ -339,12 +415,12 @@ def draw_captions():
     anyd = False
     for capt in captions:
         anyd |= capt.alive()&2
-    caption_y.target = 0 if anyd else -250
+    caption_y.target = 0 if anyd else -200
     caption_y.step()
     ox,oy = width/2,float(caption_y)
-    if oy>-230:
-        bx = 240,width-240
-        by = 0,oy+230
+    if oy>-180:
+        bx = 250,width-250
+        by = 0,oy+180
         setcolor(rgb=0.95)
         setpolyclip([[bx[0]-40,by[0]],[bx[1]+40,by[0]],[bx[1],by[1]],[bx[0],by[1]]])
         fill()
@@ -492,12 +568,12 @@ def fw_caption_set(*args):
 # Comparators
 epsilon = 1e-9
 comparators = {
-    '>':(lambda x,y:x-y>epsilon),
-    '>=':(lambda x,y:x-y>-epsilon),
-    '<':(lambda x,y:y-x>epsilon),
-    '<=':(lambda x,y:y-x>-epsilon),
-    '==':(lambda x,y:abs(x-y)<epsilon),
-    '!=':(lambda x,y:abs(x-y)>epsilon)
+    '>':lambda x,y:x-y>epsilon,
+    '>=':lambda x,y:x-y>-epsilon,
+    '<':lambda x,y:y-x>epsilon,
+    '<=':lambda x,y:y-x>-epsilon,
+    '==':lambda x,y:abs(x-y)<epsilon,
+    '!=':lambda x,y:abs(x-y)>epsilon
     }
 
 # Initialize globals
@@ -505,19 +581,19 @@ base_particles = 100
 setfont(None,-1,24)
 love_meter = drift(0.03,0.5) # 0 = hate, 1 = love
 love_meter_x = drift(0.03,-200)
-love_meter_particle_system = particle_system([[-200,-80],[-height/2,height/2]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height/2+100,5*base_particles,1)
+love_meter_particle_system = particle_system([[-200,-80],[-height/2,height/2]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height/2+100,8*base_particles,2)
 timer_time = None
 timer_func = None
 timer_size = drift(0.1,80)
 timer_y = drift(0.1,height+300)
-timer_particle_system = particle_system([[-80,80],[80,200]],[[-1,1],[-2,0]],[[-0.01,0.01],[-0.01,0.01]],300,2*base_particles,1)
+timer_particle_system = particle_system([[-80,80],[80,200]],[[-1,1],[-2,0]],[[-0.01,0.01],[-0.01,0.01]],300,1*base_particles,1)
 captions = []
-caption_y = drift(0.1,-250)
-caption_particle_system = particle_system([[-width/2,width/2],[-200,-80]],[[-1,1],[0,2]],[[-0.01,0.01],[-0.01,0.01]],width,10*base_particles,2)
+caption_y = drift(0.1,-200)
+caption_particle_system = particle_system([[-width/2,width/2],[-200,-80]],[[-1,1],[0,2]],[[-0.01,0.01],[-0.01,0.01]],width,15*base_particles,2)
 buttons = []
 button_glow = [loadimage('glow'+str(i)+'.png') for i in range(1,6)]
-particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,5*base_particles,1) for _ in range(8)]
-for particles in particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
+button_particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,3*base_particles,1) for _ in range(8)]
+for particles in button_particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
     for _ in range(200):
         particles.step()
 mouse_x,mouse_y = mouse_xy = 0,0
