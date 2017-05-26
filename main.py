@@ -354,9 +354,10 @@ def draw_meter():
     love_meter.step()
     ix = float(love_meter_x)
     if ix<-160:return
-    iy = float(love_meter)
+    iy = 1-float(love_meter)
     if iy<0:iy=0
     if iy>1:iy=1
+    ir = iy
     iy = 40+(height-80)*iy
     love_meter_particle_system.step()
     particles = love_meter_particle_system.particles
@@ -379,7 +380,9 @@ def draw_meter():
     # Text
     setcolor(rgb=0.02)
     setpolyclip()
+    setfont(None,-1,int(30*(0.5+ir)))
     drawimage(render('Hate'),(ix+40,40),xalign=0)
+    setfont(None,-1,int(30*(1.5-ir)))
     drawimage(render('Love'),(ix+40,height-40),xalign=0)
 
 def draw_timer():
@@ -625,7 +628,7 @@ p_menu_1 = fw_exec_all(fw_branch_to(['...','p_menu_1a']),fw_caption_set('So basi
 p_menu_1a = fw_exec_all(fw_branch_to(['...','p_menu_1b']),fw_caption_set('This is how dialogue will work'))
 p_menu_1b = fw_exec_all(fw_branch_to(['...','p_menu_1c']),fw_caption_set('We\'ll give each character\ntheir own colour\nor something like that',('hsv',(0.6,0.8,0.8))))
 p_menu_1c = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p_menu_1'])
-p_menu_2 = fw_meter_condition('>',0.2,fw_exec_all(fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2']),fw_meter_add(-0.15)),fw_branch_to(['uh oh','p_menu_2b']))
+p_menu_2 = fw_meter_condition('>',0.14,fw_exec_all(fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2']),fw_meter_add(-0.13)),fw_branch_to(['uh oh','p_menu_2b']))
 p_menu_2b = fw_exec_all(fw_branch_to(['to 2','p_menu_2'],['to 4','p_menu_4']),fw_caption_set('Love metred'),fw_meter_add(0.5))
 p_menu_3 = fw_branch_to(['3 -> 1','p_menu_1'],['3 -> 2','p_menu_2'],['3 -> 3','p_menu_3'],['3 -> 4','p_menu_4'])
 p_menu_4 = fw_exec_all(fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2']),fw_timer_set(10,'p_menu_5'))
