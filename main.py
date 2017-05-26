@@ -313,6 +313,24 @@ class character:
             iseql = self.anims[current][0]
             if iseql.loaded():iseql.fetch().reset()
 
+def draw_background():
+    """
+    Handles rendering of background
+    """
+    global background_image,background_x,background_y
+    if background_image:
+        background_x.step()
+        background_y.step()
+        drawimage(background_image,(float(background_x),float(background_y)))
+
+def draw_characters():
+    """
+    Handles drawing of characters
+    """
+    global characters
+    for ichar in characters:
+        ichar.draw()
+
 def draw_buttons():
     """
     Handles rendering of buttons
@@ -596,6 +614,10 @@ button_particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],
 for particles in button_particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
     for _ in range(200):
         particles.step()
+background_image = None
+background_x = drift(0.005,width/2)
+background_y = drift(0.005,height/2)
+characters = [] # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
 
 # Test menu items
@@ -614,6 +636,8 @@ fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_6)])()
 # Drivers and rendering
 for _ in mainloop():
     mouse_x,mouse_y = mouse_xy = mousepos()
+    draw_background()
+    draw_characters()
     draw_buttons()
     draw_meter()
     draw_timer()
