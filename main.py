@@ -23,6 +23,22 @@ width = 1280
 height = 720
 resize(width,height)
 
+# Override image loading and unloading
+oloadimage = loadimage
+images = {}
+def loadimage(name):
+    """
+    Load an image from file
+    Memoizes
+    """
+    if name not in images:images[name]=oloadimage(name)
+    return images[name]
+def unloadimage(name):
+    """
+    Dereferences an image
+    """
+    images.pop(name,None)
+
 class weighted_choice:
     """
     A weighted choice
@@ -75,6 +91,7 @@ class image_sequence:
     """
     def __init__(self,names,loop):
         self.loop = loop
+        self.names = names = tuple(names)
         self.images = map(loadimage,names)
         self.frame = 0
     def step(self):
@@ -130,10 +147,13 @@ class image_sequence_loader:
         Force the image sequence to load
         """
         self.seq = image_sequence(*self.args)
-    def unload(self):
+    def unload(self,full=True):
         """
         Unload the image sequence to free memory
         """
+        if full:
+            for name in self.seq.names:
+                unloadimage(name)
         self.seq = None
 
 class particle_system:
