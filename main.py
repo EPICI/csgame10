@@ -667,8 +667,8 @@ for particles in button_particle_systems+[love_meter_particle_system,timer_parti
     for _ in range(200):
         particles.step()
 background_image = None
-background_x = drift(0.005,width/2)
-background_y = drift(0.005,height/2)
+background_x = drift(0.003,width/2)
+background_y = drift(0.003,height/2)
 characters = {} # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
 
