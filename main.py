@@ -293,7 +293,9 @@ class choice_button:
         """
         Perform the action it was supposed to do
         """
-        self.action()
+        action = self.action
+        if type(action)==str:action=globals()[action]
+        action()
 
 class character:
     """
@@ -338,17 +340,22 @@ def draw_background():
     Handles rendering of background
     """
     global background_image,background_x,background_y
-    if background_image:
+    setpolyclip()
+    if background_image is not None:
         if type(background_image)==str:background_image=loadimage(background_image)
         background_x.step()
         background_y.step()
         drawimage(background_image,(float(background_x),float(background_y)))
+    else:
+        setcolor(1.0)
+        fill()
 
 def draw_characters():
     """
     Handles drawing of characters
     """
     global characters
+    setpolyclip()
     for ichar in characters.values():
         ichar.draw()
 
@@ -357,8 +364,6 @@ def draw_buttons():
     Handles rendering of buttons
     """
     global buttons,mouse_xy
-    setcolor(rgb=0.95)
-    fill()
     setfont(None,-1,24)
     for i in range(len(buttons)-1,-1,-1):
         button = buttons[i]
@@ -523,7 +528,6 @@ def fw_branch_to(*others):
         for index,params in enumerate(others):
             text = params[0]
             func = params[1]
-            if type(func)==str:func = globals()[func]
             buttons.append(choice_button(text,index,func))
     return ifw_branch_to
 
@@ -643,7 +647,8 @@ comparators = {
 
 # Initialize globals
 base_particles = 100
-setfont(None,-1,24)
+palette = lambda:None # Colour palette, dummy object
+palette.narration = ('rgb',0.3)
 love_meter = drift(0.03,0.5) # 0 = hate, 1 = love
 love_meter_x = drift(0.03,-200)
 love_meter_particle_system = particle_system([[-200,-80],[-height/2,height/2]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height/2+100,8*base_particles,2)
@@ -661,24 +666,42 @@ button_particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],
 for particles in button_particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
     for _ in range(200):
         particles.step()
-background_image = loadimage('artgallery.jpg')
-background_x = drift(0.005,width/2-1936)
+background_image = None
+background_x = drift(0.005,width/2)
 background_y = drift(0.005,height/2)
 characters = {} # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
 
 # Test menu items
-p_menu_1 = fw_exec_all(fw_branch_to(['...','p_menu_1a']),fw_caption_set('So basically'),)
-p_menu_1a = fw_exec_all(fw_branch_to(['...','p_menu_1b']),fw_caption_set('This is how dialogue will work'))
-p_menu_1b = fw_exec_all(fw_branch_to(['...','p_menu_1c']),fw_caption_set('We\'ll give each character\ntheir own colour\nor something like that',('hsv',(0.6,0.8,0.8))))
-p_menu_1c = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p_menu_1'])
-p_menu_2 = fw_meter_condition('>',0.14,fw_exec_all(fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2']),fw_meter_add(-0.13)),fw_branch_to(['uh oh','p_menu_2b']))
-p_menu_2b = fw_exec_all(fw_branch_to(['to 2','p_menu_2'],['to 4','p_menu_4']),fw_caption_set('Love metred'),fw_meter_add(0.5))
-p_menu_3 = fw_branch_to(['3 -> 1','p_menu_1'],['3 -> 2','p_menu_2'],['3 -> 3','p_menu_3'],['3 -> 4','p_menu_4'])
-p_menu_4 = fw_exec_all(fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2']),fw_timer_set(10,'p_menu_5'))
-p_menu_5 = fw_branch_to(['5 -> 1','p_menu_1'],['5 -> 2','p_menu_2'],['5 -> 4','p_menu_4'])
-p_menu_6 = fw_branch_to(['1 >>',p_menu_1],['2 >>',p_menu_2],['3 >>',p_menu_3],['4 >>',p_menu_4])
-fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_6)])()
+##p_menu_1 = fw_exec_all(fw_branch_to(['...','p_menu_1a']),fw_caption_set('So basically'),)
+##p_menu_1a = fw_exec_all(fw_branch_to(['...','p_menu_1b']),fw_caption_set('This is how dialogue will work'))
+##p_menu_1b = fw_exec_all(fw_branch_to(['...','p_menu_1c']),fw_caption_set('We\'ll give each character\ntheir own colour\nor something like that',('hsv',(0.6,0.8,0.8))))
+##p_menu_1c = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p_menu_1'])
+##p_menu_2 = fw_meter_condition('>',0.14,fw_exec_all(fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2']),fw_meter_add(-0.13)),fw_branch_to(['uh oh','p_menu_2b']))
+##p_menu_2b = fw_exec_all(fw_branch_to(['to 2','p_menu_2'],['to 4','p_menu_4']),fw_caption_set('Love metred'),fw_meter_add(0.5))
+##p_menu_3 = fw_branch_to(['3 -> 1','p_menu_1'],['3 -> 2','p_menu_2'],['3 -> 3','p_menu_3'],['3 -> 4','p_menu_4'])
+##p_menu_4 = fw_exec_all(fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2']),fw_timer_set(10,'p_menu_5'))
+##p_menu_5 = fw_branch_to(['5 -> 1','p_menu_1'],['5 -> 2','p_menu_2'],['5 -> 4','p_menu_4'])
+##p_menu_6 = fw_branch_to(['1 >>',p_menu_1],['2 >>',p_menu_2],['3 >>',p_menu_3],['4 >>',p_menu_4])
+##fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_6)])()
+# Story, paths, etc.
+
+def p_intro():
+    """
+    Choose the appropriate opening sequence
+    """
+    global width,height,palette
+    p_intro_0 = fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),'p_main_1a')]) # p_main_1a doesn't exist yet
+    p_intro_1f = fw_exec_all(fw_branch_to(['...',p_intro_0]),fw_caption_set('Could this have gone differently?',palette.narration))
+    p_intro_1e = fw_exec_all(fw_branch_to(['...',p_intro_1f]),fw_caption_set('Lily is an art director at Axolotl Design Inc.\nand is already married to a hotshot lawyer.',palette.narration))
+    p_intro_1d = fw_exec_all(fw_branch_to(['...',p_intro_1e]),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration))
+    p_intro_1c = fw_exec_all(fw_background_set(txy=(1936,height/2)),fw_branch_to(['...',p_intro_1d]),fw_caption_set('Here you are at an art gallery',palette.narration))
+    p_intro_1b = fw_exec_all(fw_branch_to(['...',p_intro_1c]),fw_caption_set('You were their mutual friend.',palette.narration))
+    p_intro_1a = fw_exec_all(fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),fw_branch_to(['...',p_intro_1b]),fw_caption_set('Yu and Lily were lovers in highschool.',palette.narration))
+    # Currently returns the default, TODO read save file
+    return p_intro_1a
+
+p_intro()()
 
 # Drivers and rendering
 for _ in mainloop():
