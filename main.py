@@ -349,7 +349,7 @@ def draw_characters():
     Handles drawing of characters
     """
     global characters
-    for ichar in characters:
+    for ichar in characters.values():
         ichar.draw()
 
 def draw_buttons():
@@ -607,6 +607,29 @@ def fw_caption_set(*args):
         captions.append(caption(*args))
     return ifw_caption_set
 
+def fw_background_set(**kwargs):
+    """
+    Return a function to change the background
+    """
+    pairs = kwargs.items()
+    def ifw_background_set():
+        global background_image,background_x,background_y
+        for k,v in pairs:
+            # Use string search to recognize shorthands
+            if k in 'imageimg':
+                background_image = v
+            elif k in 'targetxytargetposition':
+                x,y = v
+                background_x.target = float(x)
+                background_y.target = float(y)
+            elif k in 'staticxystaticposition':
+                x,y = v
+                background_x.target = background_x.value = float(x)
+                background_y.target = background_y.value = float(y)
+            else:
+                raise ValueError('Unrecognized keyword')
+    return ifw_background_set
+
 # Comparators
 epsilon = 1e-9
 comparators = {
@@ -633,15 +656,15 @@ captions = []
 caption_y = drift(0.1,-200)
 caption_particle_system = particle_system([[-width/2,width/2],[-200,-80]],[[-1,1],[0,2]],[[-0.01,0.01],[-0.01,0.01]],width,15*base_particles,2)
 buttons = []
-button_glow = [loadimage('images\glow'+str(i)+'.png') for i in range(1,6)]
+button_glow = [loadimage('glow'+str(i)+'.png') for i in range(1,6)]
 button_particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,3*base_particles,1) for _ in range(8)]
 for particles in button_particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
     for _ in range(200):
         particles.step()
-background_image = None
-background_x = drift(0.005,width/2)
+background_image = loadimage('artgallery.jpg')
+background_x = drift(0.005,width/2-1936)
 background_y = drift(0.005,height/2)
-characters = [] # TODO make characters and reference them here
+characters = {} # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
 
 # Test menu items
