@@ -339,6 +339,7 @@ def draw_background():
     """
     global background_image,background_x,background_y
     if background_image:
+        if type(background_image)==str:background_image=loadimage(background_image)
         background_x.step()
         background_y.step()
         drawimage(background_image,(float(background_x),float(background_y)))
@@ -632,7 +633,7 @@ captions = []
 caption_y = drift(0.1,-200)
 caption_particle_system = particle_system([[-width/2,width/2],[-200,-80]],[[-1,1],[0,2]],[[-0.01,0.01],[-0.01,0.01]],width,15*base_particles,2)
 buttons = []
-button_glow = [loadimage('glow'+str(i)+'.png') for i in range(1,6)]
+button_glow = [loadimage('images\glow'+str(i)+'.png') for i in range(1,6)]
 button_particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,3*base_particles,1) for _ in range(8)]
 for particles in button_particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
     for _ in range(200):
