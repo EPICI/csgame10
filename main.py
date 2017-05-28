@@ -615,23 +615,31 @@ def fw_background_set(**kwargs):
     """
     Return a function to change the background
     """
-    pairs = kwargs.items()
+    cmds = [None]*3
+    for k,v in kwargs.items():
+        if k in 'imageimg':
+            if cmds[0] is not None:raise ValueError('Duplicate keyword '+k)
+            cmds[0] = v
+        elif k in 'targetxytargetposition':
+            if cmds[2] is not None:raise ValueError('Duplicate keyword '+k)
+            cmds[2] = v
+        elif k in 'staticxystaticposition':
+            if cmds[1] is not None:raise ValueError('Duplicate keyword '+k)
+            cmds[1] = v
+        else:
+            raise ValueError('Unrecognized keyword '+k)
     def ifw_background_set():
         global background_image,background_x,background_y
-        for k,v in pairs:
-            # Use string search to recognize shorthands
-            if k in 'imageimg':
-                background_image = v
-            elif k in 'targetxytargetposition':
-                x,y = v
-                background_x.target = float(x)
-                background_y.target = float(y)
-            elif k in 'staticxystaticposition':
-                x,y = v
-                background_x.target = background_x.value = float(x)
-                background_y.target = background_y.value = float(y)
-            else:
-                raise ValueError('Unrecognized keyword')
+        if cmds[0] is not None:
+            background_image = cmds[0]
+        if cmds[1] is not None:
+            x,y = cmds[1]
+            background_x.target = background_x.value = float(x)
+            background_y.target = background_y.value = float(y)
+        if cmds[2] is not None:
+            x,y = cmds[2]
+            background_x.target = float(x)
+            background_y.target = float(y)
     return ifw_background_set
 
 # Comparators
