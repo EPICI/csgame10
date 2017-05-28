@@ -344,9 +344,14 @@ class character:
         iseq.draw(ialpha,(ix,iy))
         iseq.step()
         if iseq.atend():
-            self.current = current = redir.choose()
-            iseql = self.anims[current][0]
-            if iseql.loaded():iseql.fetch().reset()
+            self.jumpto(redir.choose())
+    def jumpto(self,name):
+        """
+        Jump to a particular animation
+        """
+        self.current = name
+        iseql = self.anims[name][0]
+        if iseql.loaded():iseql.fetch().reset()
 
 # ======================================================================================================================================================
 #
@@ -646,34 +651,80 @@ def fw_background_set(**kwargs):
     """
     Return a function to change the background
     """
-    cmds = [None]*3
+    img = None
+    cxy = None
+    txy = None
     for k,v in kwargs.items():
         if k in 'imageimg':
-            if cmds[0] is not None:raise ValueError('Duplicate keyword '+k)
-            cmds[0] = v
+            if img is not None:raise ValueError('Duplicate keyword '+k)
+            img = v
         elif k in 'targetxytargetposition':
-            if cmds[2] is not None:raise ValueError('Duplicate keyword '+k)
-            cmds[2] = v
+            if txy is not None:raise ValueError('Duplicate keyword '+k)
+            txy = v
         elif k in 'staticxystaticposition':
-            if cmds[1] is not None:raise ValueError('Duplicate keyword '+k)
-            cmds[1] = v
+            if cxy is not None:raise ValueError('Duplicate keyword '+k)
+            cxy = v
         else:
             raise ValueError('Unrecognized keyword '+k)
     def ifw_background_set():
         global background_image,background_x,background_y
-        if cmds[0] is not None:
-            background_image = cmds[0]
-        if cmds[1] is not None:
-            x,y = cmds[1]
+        if img is not None:
+            background_image = img
+        if cxy is not None:
+            x,y = cxy
             background_x.target = background_x.value = float(x)
             background_y.target = background_y.value = float(y)
-        if cmds[2] is not None:
-            x,y = cmds[2]
+        if txy is not None:
+            x,y = txy
             background_x.target = float(x)
             background_y.target = float(y)
     return ifw_background_set
 
-
+def fw_character_set(cname,**kwargs):
+    """
+    Return a function to set the target character to a certain animation
+    """
+    aname = None
+    cxy = None
+    txy = None
+    ca = None
+    ta = None
+    for k,v in kwargs:
+        if k in 'jumptoanimationnameaname':
+            if aname is not None:raise ValueError('Duplicate keyword '+k)
+            aname = v
+        elif k in 'targetxytargetposition':
+            if txy is not None:raise ValueError('Duplicate keyword '+k)
+            txy = v
+        elif k in 'staticxystaticposition':
+            if cxy is not None:raise ValueError('Duplicate keyword '+k)
+            cxy = v
+        elif k in 'targetalpha':
+            if ta is not None:raise ValueError('Duplicate keyword '+k)
+            ta = v
+        elif k in 'staticalpha':
+            if ca is not None:raise ValueError('Duplicate keyword '+k)
+            ca = v
+        else:
+            raise ValueError('Unrecognized keyword '+k)
+    def ifw_character_jump():
+        global characters
+        ichar = characters[cname]
+        if aname is not None:
+            ichar.jumpto(aname)
+        if cxy is not None:
+            x,y = cxy
+            ichar.x.target = ichar.x.value = float(x)
+            ichar.y.target = ichar.y.value = float(y)
+        if txy is not None:
+            x,y = txy
+            ichar.x.target = float(x)
+            ichar.y.target = float(y)
+        if ca is not None:
+            ichar.alpha.target = ichar.alpha.value = float(ca)
+        if ta is not None:
+            ichar.alpha.target = float(ta)
+    return ifw_character_jump
 
 # ======================================================================================================================================================
 #
@@ -754,7 +805,7 @@ p_intro()
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 1: before business class
-p_1_1a = fw_exec_all(fw_background_set(img='hallway.png',cxy=(width/2,height-600)),fw_branch_to(('...','p_1_1b')),fw_caption_set('6 years earlier, in grade 12 just before\nthe start of a shared class, international business.',palette.narration))
+p_1_1a = fw_exec_all(fw_background_set(img='hallway.png',cxy=(width/2,height-600)),fw_branch_to(('...','p_1_1b')),fw_caption_set('6 years earlier, in grade 12, just before\nthe start of a shared class, international business.',palette.narration))
 p_1_1b = fw_exec_all(fw_meter_status(True),fw_background_set(txy=(width/2,600)),fw_branch_to(('Talk to Yu','p_1_2a'),('Talk to Lily','p_1_3a')),fw_timer_set(15,'p_1_4a'))
 
 # Drivers and rendering
