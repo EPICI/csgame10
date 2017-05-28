@@ -3,9 +3,11 @@ package core;
 import java.util.*;
 import java.util.concurrent.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.beans.PropertyChangeListener;
 import java.awt.geom.*;
 import javax.imageio.*;
 import javax.swing.*;
@@ -75,7 +77,7 @@ public class engine {
 	/**
 	 * Events list
 	 */
-	public static ConcurrentLinkedDeque<PyObject> _events = new ConcurrentLinkedDeque<>();
+	public static ConcurrentLinkedDeque<_delayedcall> _events = new ConcurrentLinkedDeque<>();
 	/**
 	 * Matrices, like Processing
 	 */
@@ -83,11 +85,11 @@ public class engine {
 	/**
 	 * Font currently in use
 	 */
-	public static volatile Font _font = new Font("Arial",Font.PLAIN,16);
+	public static Font _font = new Font("Arial",Font.PLAIN,16);
 	/**
 	 * Color currently in use
 	 */
-	public static volatile Color _color;
+	public static Color _color;
 	/**
 	 * All listeners
 	 */
@@ -108,10 +110,6 @@ public class engine {
 	 * Whether to print debug output
 	 */
 	public static boolean _debug;
-	/**
-	 * Whether or not to delete the log file
-	 */
-	public static volatile boolean _delete;
 
 	/**
 	 * The main method
@@ -184,20 +182,19 @@ public class engine {
 		_frame.add(_panel);
 		_frame.pack();
 		_frame.setVisible(true);
-		_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		_frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		_frame.addWindowListener(new WindowListener(){
 
 			@Override
 			public void windowActivated(WindowEvent arg0) {}
 
 			@Override
-			public void windowClosed(WindowEvent arg0) {}
-
-			@Override
-			public void windowClosing(WindowEvent arg0) {
-				_delete = true;
+			public void windowClosed(WindowEvent arg0) {
 				die();
 			}
+
+			@Override
+			public void windowClosing(WindowEvent arg0) {}
 
 			@Override
 			public void windowDeactivated(WindowEvent arg0) {}
@@ -222,7 +219,6 @@ public class engine {
 		// Run script
 		try{
 			_interpreter.execfile(scriptName);
-			_delete = true;
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -233,8 +229,6 @@ public class engine {
 	 * Murder the program
 	 */
 	public static void die(){
-		// Close window
-		_frame.dispose();
 		// Signal closing in log
 		System.out.println("------------------------------------------------------------");
 		System.out.println("Closing");
@@ -246,10 +240,8 @@ public class engine {
 		// Final garbage collection
 		System.gc();
 		// Delete log file
-		if(_delete){
-			if(!new File(_log).delete()){
-				System.out.println("Unable to delete log file");
-			}
+		if(!new File(_log).delete()){
+			System.out.println("Unable to delete log file");
 		}
 		// Clean up frame
 		_frame.dispose();
@@ -345,7 +337,11 @@ public class engine {
 			
 			void call(MouseEvent event,PyString type){
 				if(_debug)System.out.println("Mouse "+type+" at ("+event.getX()+","+event.getY()+")");
-				function.__call__(new PyObject[]{type,mousepos(),new PyInteger(event.getButton())},new String[0]);
+				_events.addLast(new _delayedcall(){
+					public void call(){
+						function.__call__(new PyObject[]{type,mousepos(),new PyInteger(event.getButton())},new String[0]);
+					}
+				});
 			}
 
 			@Override
@@ -409,7 +405,12 @@ public class engine {
 				int key = event.getKeyCode();
 				if(key==0)key = event.getKeyChar();
 				if(_debug)System.out.println("Key "+type+": "+key);
-				function.__call__(new PyObject[]{type,new PyInteger(key)},new String[0]);
+				final int ckey = key;
+				_events.addLast(new _delayedcall(){
+					public void call(){
+						function.__call__(new PyObject[]{type,new PyInteger(ckey)},new String[0]);
+					}
+				});
 			}
 
 			@Override
@@ -695,7 +696,6 @@ public class engine {
 				PyObject[] pair = getpairfrom(value,true);
 				xal = pair[0];
 				yal = pair[1];
-				break;
 			}
 			default:throw new IllegalArgumentException("alignment key ("+key+") not recognized");
 			}
@@ -1043,8 +1043,8 @@ public class engine {
 					_time=now;
 				}
 				while(!_events.isEmpty()){
-					PyObject event = _events.pollFirst();
-					event.__call__();
+					_delayedcall event = _events.pollFirst();
+					event.call();
 				}
 				_matrices.clear();
 				_matrices.add(new AffineTransform());
@@ -1142,6 +1142,19 @@ public class engine {
 			if(delay<=0)throw new IllegalArgumentException("delay ("+delay+") must be positive");
 			_frame_delay = delay;
 		}
+	}
+	
+	/**
+	 * Delayed function call
+	 * 
+	 * @author EPICI
+	 * @version 1.0
+	 */
+	public static interface _delayedcall{
+		/**
+		 * Do the action it was supposed to do
+		 */
+		public void call();
 	}
 
 }
