@@ -9,21 +9,28 @@ if '_jython' not in globals():
     os.system('engine.jar')
     exit()
 
+# ======================================================================================================================================================
+#
+# Initialization that needs to happen before the other initialization
+#
+# ======================================================================================================================================================
+
 # Imports
 from math import *
 from random import *
 from time import *
 from core.engine import *
 
-# Set reasonable FPS
-fps = 24
+# Set reasonable FPS limit
+# Note on FPS: game can go slower, but can never go faster, so it is okay to set this high
+fps = 30
 framerate(fps)
 # Set base resolution
 width = 1280
 height = 720
 resize(width,height)
 
-# Override image loading and unloading
+# Override image loading and bundle with unload
 oloadimage = loadimage
 images = {}
 def loadimage(name):
@@ -38,6 +45,12 @@ def unloadimage(name):
     Dereferences an image
     """
     images.pop(name,None)
+
+# ======================================================================================================================================================
+#
+# Classes
+#
+# ======================================================================================================================================================
 
 class weighted_choice:
     """
@@ -335,6 +348,12 @@ class character:
             iseql = self.anims[current][0]
             if iseql.loaded():iseql.fetch().reset()
 
+# ======================================================================================================================================================
+#
+# Rendering abstractions
+#
+# ======================================================================================================================================================
+
 def draw_background():
     """
     Handles rendering of background
@@ -479,6 +498,12 @@ def draw_captions():
         for capt in captions:
             capt.draw()
 
+# ======================================================================================================================================================
+#
+# Event handling
+#
+# ======================================================================================================================================================
+
 def onclick(etype,exy,ebutton):
     """
     Handles mouse events
@@ -498,6 +523,12 @@ def onclick(etype,exy,ebutton):
         elif len(ready)==1:
             ready[0].act()
 bindmouse('mouse event',onclick)
+
+# ======================================================================================================================================================
+#
+# Functional utilities
+#
+# ======================================================================================================================================================
 
 def clear_buttons():
     """
@@ -642,6 +673,14 @@ def fw_background_set(**kwargs):
             background_y.target = float(y)
     return ifw_background_set
 
+
+
+# ======================================================================================================================================================
+#
+# Initialize globals
+#
+# ======================================================================================================================================================
+
 # Comparators
 epsilon = 1e-9
 comparators = {
@@ -652,8 +691,7 @@ comparators = {
     '==':lambda x,y:abs(x-y)<epsilon,
     '!=':lambda x,y:abs(x-y)>epsilon
     }
-
-# Initialize globals
+# Particle systems, images, etc.
 base_particles = 100
 palette = lambda:None # Colour palette, dummy object
 palette.narration = ('rgb',0.3)
@@ -680,7 +718,13 @@ background_y = drift(0.003,height/2)
 characters = {} # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
 
-# Test menu items
+# ======================================================================================================================================================
+#
+# Story is hardcoded
+#
+# ======================================================================================================================================================
+
+# Test menu items (not deleted because it could be a useful reference)
 ##p_menu_1 = fw_exec_all(fw_branch_to(['...','p_menu_1a']),fw_caption_set('So basically'),)
 ##p_menu_1a = fw_exec_all(fw_branch_to(['...','p_menu_1b']),fw_caption_set('This is how dialogue will work'))
 ##p_menu_1b = fw_exec_all(fw_branch_to(['...','p_menu_1c']),fw_caption_set('We\'ll give each character\ntheir own colour\nor something like that',('hsv',(0.6,0.8,0.8))))
@@ -694,22 +738,22 @@ mouse_x,mouse_y = mouse_xy = 0,0
 ##fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_6)])()
 # Story, paths, etc.
 
-def p_intro():
-    """
-    Choose the appropriate opening sequence
-    """
-    global width,height,palette
-    p_intro_0 = fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),'p_main_1a')]) # p_main_1a doesn't exist yet
-    p_intro_1f = fw_exec_all(fw_branch_to(['...',p_intro_0]),fw_caption_set('Could this have gone differently?',palette.narration))
-    p_intro_1e = fw_exec_all(fw_branch_to(['...',p_intro_1f]),fw_caption_set('Lily is an art director at Axolotl Design Inc.\nand is already married to a hotshot lawyer.',palette.narration))
-    p_intro_1d = fw_exec_all(fw_branch_to(['...',p_intro_1e]),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration))
-    p_intro_1c = fw_exec_all(fw_background_set(txy=(1936,height/2)),fw_branch_to(['...',p_intro_1d]),fw_caption_set('Here you are at an art gallery',palette.narration))
-    p_intro_1b = fw_exec_all(fw_branch_to(['...',p_intro_1c]),fw_caption_set('You were their mutual friend.',palette.narration))
-    p_intro_1a = fw_exec_all(fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),fw_branch_to(['...',p_intro_1b]),fw_caption_set('Yu and Lily were lovers in highschool.',palette.narration))
-    # Currently returns the default, TODO read save file
-    return p_intro_1a
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Opening sequence
+p_intro_0 = fw_branch_to(['Play','p_1_1a'])
+p_intro_1a = fw_exec_all(fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),fw_branch_to(['...','p_intro_1b']),fw_caption_set('Yu and Lily were lovers in highschool.',palette.narration))
+p_intro_1b = fw_exec_all(fw_branch_to(['...','p_intro_1c']),fw_caption_set('You were their mutual friend.',palette.narration))
+p_intro_1c = fw_exec_all(fw_background_set(txy=(1936,height/2)),fw_branch_to(['...','p_intro_1d']),fw_caption_set('Here you are at an art gallery',palette.narration))
+p_intro_1d = fw_exec_all(fw_branch_to(['...','p_intro_1e']),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration))
+p_intro_1e = fw_exec_all(fw_branch_to(['...','p_intro_1f']),fw_caption_set('Lily is an art director at Axolotl Design Inc.\nand is already married to a hotshot lawyer.',palette.narration))
+p_intro_1f = fw_exec_all(fw_branch_to(['...','p_intro_0']),fw_caption_set('Could this have gone differently?',palette.narration))
+# Currently sets to the default, TODO read save file if present
+p_intro = p_intro_1a
+p_intro()
 
-p_intro()()
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Part 1, scene 1: before business class
+p_1_1a = lambda:None # filler
 
 # Drivers and rendering
 for _ in mainloop():
