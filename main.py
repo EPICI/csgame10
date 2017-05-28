@@ -306,8 +306,7 @@ class choice_button:
         """
         Perform the action it was supposed to do
         """
-        action = self.action
-        if type(action)==str:action=globals()[action]
+        self.action = action = funcify(self.action)
         action()
 
 class character:
@@ -452,8 +451,7 @@ def draw_timer():
             timer_str = str(timer_remaining)[:4]
         else:
             timer_time = None
-            if type(timer_func)==str:timer_func=globals()[timer_func]
-            timer_func()
+            funcify(timer_func)()
     else:
         timer_y.target = height+300
         timer_size.target = 40
@@ -536,6 +534,15 @@ bindmouse('mouse event',onclick)
 #
 # ======================================================================================================================================================
 
+def funcify(func):
+    """
+    Returns the function version of the given
+    """
+    tfunc = type(func)
+    if tfunc==str:return funcify(globals()[func])
+    if tfunc==list or tfunc==tuple:return fw_exec_all(*func)
+    return func
+
 def clear_buttons():
     """
     Gets rid of the current buttons
@@ -573,8 +580,7 @@ def fw_exec_all(*funcs):
     Return a function which executes all functions in order
     """
     def ifw_exec_all():
-        for func in funcs:
-            if type(func)==str:func = globals()[func]
+        for func in map(funcify,funcs):
             func()
     return ifw_exec_all
 
@@ -793,20 +799,21 @@ player_name = '.' # not feeling creative right now
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Opening sequence
 p_intro_0 = fw_branch_to(['Play','p_1_1a'])
-p_intro_1a = fw_exec_all(fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),fw_branch_to(('...','p_intro_1b')),fw_caption_set('Yu and Lily were lovers in highschool.',palette.narration))
-p_intro_1b = fw_exec_all(fw_branch_to(('...','p_intro_1c')),fw_caption_set('You were their mutual friend.',palette.narration))
-p_intro_1c = fw_exec_all(fw_background_set(txy=(1936,height/2)),fw_branch_to(('...','p_intro_1d')),fw_caption_set('Here you are at an art gallery',palette.narration))
-p_intro_1d = fw_exec_all(fw_branch_to(('...','p_intro_1e')),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration))
-p_intro_1e = fw_exec_all(fw_branch_to(('...','p_intro_1f')),fw_caption_set('Lily is an art director at Axolotl Design Inc.\nand is already married to a hotshot lawyer.',palette.narration))
-p_intro_1f = fw_exec_all(fw_branch_to(('...','p_intro_0')),fw_caption_set('Could this have gone differently?',palette.narration))
+p_intro_1a = fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),fw_branch_to(('...','p_intro_1b')),fw_caption_set('Yu and Lily were lovers in highschool.',palette.narration)
+p_intro_1b = fw_branch_to(('...','p_intro_1c')),fw_caption_set('You were their mutual friend.',palette.narration)
+p_intro_1c = fw_background_set(txy=(1936,height/2)),fw_branch_to(('...','p_intro_1d')),fw_caption_set('Here you are at an art gallery',palette.narration)
+p_intro_1d = fw_branch_to(('...','p_intro_1e')),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration)
+p_intro_1e = fw_branch_to(('...','p_intro_1f')),fw_caption_set('Lily is an art director at Axolotl Design Inc.\nand is already married to a hotshot lawyer.',palette.narration)
+p_intro_1f = fw_branch_to(('...','p_intro_0')),fw_caption_set('Could this have gone differently?',palette.narration)
 # Currently sets to the default, TODO read save file if present
 p_intro = p_intro_1a
-p_intro()
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 1: before business class
-p_1_1a = fw_exec_all(fw_background_set(img='hallway.png',cxy=(width/2,height-600)),fw_branch_to(('...','p_1_1b')),fw_caption_set('6 years earlier, in grade 12, just before\nthe start of a shared class, international business.',palette.narration))
-p_1_1b = fw_exec_all(fw_meter_status(True),fw_background_set(txy=(width/2,600)),fw_branch_to(('Talk to Yu','p_1_2a'),('Talk to Lily','p_1_3a')),fw_timer_set(15,'p_1_4a'))
+p_1_1a = fw_background_set(img='hallway.png',cxy=(width/2,height-600)),fw_branch_to(('...','p_1_1b')),fw_caption_set('6 years earlier, in grade 12, just before\nthe start of a shared class, international business.',palette.narration)
+p_1_1b = fw_meter_status(True),fw_background_set(txy=(width/2,600)),fw_branch_to(('Talk to Yu','p_1_2a'),('Talk to Lily','p_1_3a')),fw_timer_set(15,'p_1_4a')
+
+funcify(p_intro)()
 
 # Drivers and rendering
 for _ in mainloop():
