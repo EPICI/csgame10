@@ -204,8 +204,38 @@ class caption:
     Some text and other data, collectively representing a caption
     """
     def __init__(self,texts,colors=None):
-        global width,height
-        self.texts = texts.split('\n') if type(texts)==str else list(map(str,texts)) # Force string type
+        global width,height,linelength
+        # Split lines
+        if len(texts)<linelength:
+            texts = (texts,)
+        elif len(texts)<2*linelength:
+            parts = texts.split(' ')[::-1]
+            tl = len(texts)//2
+            al = -1
+            a = []
+            while al<tl:
+                nx = parts.pop()
+                al += len(nx)+1
+                a.append(nx)
+            texts = (' '.join(a),' '.join(parts[::-1]))
+        else:
+            parts = texts.split(' ')[::-1]
+            tl = len(texts)//3
+            al = -1
+            a = []
+            while al<tl:
+                nx = parts.pop()
+                al += len(nx)+1
+                a.append(nx)
+            tl = (sum(map(len,parts))+len(parts)-1)//2
+            bl = -1
+            b = []
+            while bl<tl:
+                nx = parts.pop()
+                bl += len(nx)+1
+                b.append(nx)
+            texts = (' '.join(a),' '.join(b),' '.join(parts[::-1]))
+        self.texts = texts
         self.x = drift(0.1,width/2)
         self.y = drift(0.1,150,100)
         self.alpha = drift(0.1,1,0) # Alpha
@@ -746,6 +776,8 @@ def drgb(istr):
 #
 # ======================================================================================================================================================
 
+# Constants and configurations
+linelength = 50 # Number of characters to allow in one line for captions (soft limit)
 # Comparators
 epsilon = 1e-9
 comparators = {
@@ -819,7 +851,7 @@ p_intro_ba = fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),r
 p_intro_bb = redir('p_intro_bc'),fw_caption_set('You play as Marcel, their mutual friend.',palette.narration)
 p_intro_bc = fw_background_set(txy=(1936,height/2)),redir('p_intro_bd'),fw_caption_set('Here you are at an art gallery',palette.narration)
 p_intro_bd = redir('p_intro_be'),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration)
-p_intro_be = redir('p_intro_bf'),fw_caption_set('Lily is an art director at Axolotl Design Inc.\nand is already married to a hotshot lawyer.',palette.narration)
+p_intro_be = redir('p_intro_bf'),fw_caption_set('Lily is an art director at Axolotl Design Inc. and is already married to a hotshot lawyer.',palette.narration)
 p_intro_bf = redir('p_intro_a'),fw_caption_set('Could this have gone differently?',palette.narration)
 # Currently sets to the default, TODO read save file if present
 p_intro = p_intro_ba
@@ -828,7 +860,7 @@ p_intro = p_intro_ba
 # Part 1, scene 1: before business class
 
 p_1_1aa = fw_background_set(img='hallway.png',cxy=(width/2,height-600)),redir('p_1_1ab'),fw_caption_set('6 years earlier, in grade 12, just before\nthe start of a shared class, International Business.',palette.narration)
-p_1_1ab = redir('p_1_1ac'),fw_caption_set('Lily is currently dating Rustam.\nYu is a hobbyist painter.',palette.narration)
+p_1_1ab = redir('p_1_1ac'),fw_caption_set('Lily is currently dating Rustam. Yu is a hobbyist painter.',palette.narration)
 p_1_1ac = fw_meter_status(True),fw_background_set(txy=(width/2,600)),fw_branch_to(('Talk to Yu','p_1_2aa'),('Talk to Lily','p_1_3aa')),fw_timer_set(15,'p_1_4aa')
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -846,7 +878,7 @@ p_1_2cb = redir('p_1_2cc'),fw_caption_set('Bored? I guess anyone would be.',pale
 p_1_2cc = redir('p_1_4aa'),fw_caption_set('I\'ll get back to painting.',palette.yu)
 
 p_1_2da = redir('p_1_2db'),fw_caption_set('Wow, you\'ve gotten a lot better with characters.',palette.player)
-p_1_2db = redir('p_1_2dc'),fw_caption_set('Yeah, it\'s thanks to that anatomy course I took.',palette.yu)
+p_1_2db = redir('p_1_2dc'),fw_caption_set('Yeah, it\'s thanks to learning anatomy.',palette.yu)
 p_1_2dc = redir('p_1_2dd'),fw_caption_set('It was a nice change from art history.',palette.yu)
 p_1_2dd = redir('p_1_4aa'),fw_caption_set('Well, class is starting soon. Let\'s go?',palette.yu)
 
@@ -854,6 +886,35 @@ p_1_2ea = redir('p_1_4aa'),fw_caption_set('I\'ll leave you to it then.',palette.
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 3: talking with Lily before class
+
+p_1_3aa = redir('p_1_3ab'),fw_caption_set('Hey Marcel. Ready for trade?',palette.lily)
+p_1_3ab = redir('p_1_3ac'),fw_caption_set('Huh? Oh, did you read the entire syllabus?',palette.player)
+p_1_3ac = redir('p_1_3ad'),fw_caption_set('I like to be prepared.',palette.lily)
+p_1_3ad = fw_branch_to(('Rustam','p_1_3ba'),('Clubs','p_1_3ca'))
+
+p_1_3ba = redir('p_1_3bb'),fw_caption_set('Anything new with Rustam?',palette.player)
+p_1_3bb = redir('p_1_3bc'),fw_caption_set('Well, now that you\'ve asked, I kind of have to tell you don\'t I?',palette.lily)
+p_1_3bc = redir('p_1_3bd'),fw_caption_set('No. You\'re entitled to some amount of privacy.',palette.player)
+p_1_3bd = redir('p_1_3be'),fw_caption_set('But it\'d be bad mannered not to share something so petty.',palette.lily)
+p_1_3be = redir('p_1_3bf'),fw_caption_set('So the one time I\'m free for a date, Rustam is streaming League of Legends.',palette.lily)
+p_1_3bf = redir('p_1_3bg'),fw_caption_set('It wouldn\'t have been so bad if he had seemed to care.',palette.lily)
+p_1_3bg = redir('p_1_3bh'),fw_caption_set('Why are you still with him?',palette.player)
+p_1_3bh = redir('p_1_3bi'),fw_caption_set('These things happen I guess.',palette.lily)
+p_1_3bi = redir('p_1_3bj'),fw_caption_set('I\'d want another chance, so I chose to forgive him.',palette.lily)
+p_1_3bj = redir('p_1_3bk'),fw_caption_set('You shouldn\'t stay with someone so apathetic.',palette.player)
+p_1_3bk = redir('p_1_3bl'),fw_caption_set('Apathetic? Do you read dictionaries in your spare time or something?',palette.lily)
+p_1_3bl = redir('p_1_3bm'),fw_caption_set('Whatever. You can\'t seriously call someone who favours gaming over you, your boyfriend.',palette.player)
+p_1_3bm = redir('p_1_3bn'),fw_caption_set('Well, I favour DECA over him, I can understand how he could be so attracted to gaming.',palette.lily)
+p_1_3bn = redir('p_1_3bo'),fw_caption_set('DECA accomplishes something. Casual League doesn\'t.',palette.player)
+p_1_3bo = redir('p_1_3bp'),fw_caption_set('Really, don\'t try to defend him. Just tell him.',palette.player)
+p_1_3bp = redir('p_1_4aa'),fw_caption_set('There are plenty of fish in the sea.',palette.player)
+
+p_1_3ca = redir('p_1_3cb'),fw_caption_set('How\'s DECA going?',palette.player)
+p_1_3cb = redir('p_1_3cc'),fw_caption_set('Our board is right around the corner. You could\'ve checked before asking me.',palette.lily)
+p_1_3cc = redir('p_1_3cd'),fw_caption_set('Anyways, I\'m club president now.',palette.lily)
+p_1_3cd = redir('p_1_3ce'),fw_caption_set('It won\'t be long before we get gold again.',palette.lily)
+p_1_3ce = redir('p_1_3cf'),fw_caption_set('Do you even need school?',palette.player)
+p_1_3cf = redir('p_1_4aa'),fw_caption_set('For the certification, yes.',palette.lily)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 4: business class

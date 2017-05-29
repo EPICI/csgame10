@@ -194,7 +194,6 @@ public class engine {
 
 			@Override
 			public void windowClosed(WindowEvent arg0) {
-				_delete = true;
 				die();
 			}
 
@@ -222,11 +221,12 @@ public class engine {
 		_interpreter.exec("class layermatrix:\n\tdef __init__(self,layer=None):\n\t\tself.layer=getmatrix(-1) if layer is None else layer\n\tdef __enter__(self):\n\t\tpushmatrix(self.layer)\n\t\treturn getmatrix(-1)\n\tdef __exit__(self,*args):\n\t\tpopmatrix()\n\t\treturn False");
 		_interpreter.set("_jython", new PyInteger(1));
 		// Run script
+		_delete = true;
 		try{
 			_interpreter.execfile(scriptName);
-			_delete = true;
 		}catch(Exception e){
 			e.printStackTrace();
+			_delete = false;
 		}
 		die();
 	}
