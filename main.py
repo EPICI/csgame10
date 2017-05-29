@@ -491,7 +491,7 @@ def draw_captions():
     if oy>-180:
         bx = 250,width-250
         by = 0,oy+180
-        setcolor(rgb=0.95)
+        setcolor(rgb=0.7)
         setpolyclip([[bx[0]-40,by[0]],[bx[1]+40,by[0]],[bx[1],by[1]],[bx[0],by[1]]])
         fill()
         for capt in captions:
@@ -759,7 +759,7 @@ comparators = {
 # Particle systems, images, etc.
 base_particles = 100
 palette = lambda:None # Colour palette, dummy object
-palette.narration = ('rgb',0.3)
+palette.narration = ('rgb',0.4)
 palette.player = ('rgb',drgb('E50085'))
 palette.lily = ('rgb',drgb('00BBCC'))
 palette.yu = ('rgb',drgb('F2C500'))
@@ -839,13 +839,18 @@ p_1_2aa = fw_branch_to(('Hi','p_1_2ba')),fw_timer_set(7,'p_1_2ca')
 p_1_2ba = redir('p_1_2bb'),fw_caption_set('Hi Yu.',palette.player)
 p_1_2bb = redir('p_1_2bc'),fw_caption_set('Oh. Hi Marcel.',palette.yu)
 p_1_2bc = redir('p_1_2bd'),fw_caption_set('I\'m just drawing a thing for Painting.',palette.yu)
-p_1_2bd = fw_branch_to(('Look','p_2_da')),fw_timer_set(5,'p_2_ea')
+p_1_2bd = fw_branch_to(('Look','p_1_2da')),fw_timer_set(5,'p_2_ea')
 
-p_1_2ca = redir('p_1_cb'),fw_caption_set('Hi Marcel.',palette.yu)
-p_1_2cb = redir('p_1_cc'),fw_caption_set('Bored? I guess anyone would be.',palette.yu)
-p_1_2cc = redir('p_4_aa'),fw_caption_set('I\'ll get back to painting.',palette.yu)
+p_1_2ca = redir('p_1_2cb'),fw_caption_set('Hi Marcel.',palette.yu)
+p_1_2cb = redir('p_1_2cc'),fw_caption_set('Bored? I guess anyone would be.',palette.yu)
+p_1_2cc = redir('p_1_4aa'),fw_caption_set('I\'ll get back to painting.',palette.yu)
 
+p_1_2da = redir('p_1_2db'),fw_caption_set('Wow, you\'ve gotten a lot better with characters.',palette.player)
+p_1_2db = redir('p_1_2dc'),fw_caption_set('Yeah, it\'s thanks to that anatomy course I took.',palette.yu)
+p_1_2dc = redir('p_1_2dd'),fw_caption_set('It was a nice change from art history.',palette.yu)
+p_1_2dd = redir('p_1_4aa'),fw_caption_set('Well, class is starting soon. Let\'s go?',palette.yu)
 
+p_1_2ea = redir('p_1_4aa'),fw_caption_set('I\'ll leave you to it then.',palette.player)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 3: talking with Lily before class
