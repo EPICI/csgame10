@@ -205,36 +205,9 @@ class caption:
     """
     def __init__(self,texts,colors=None):
         global width,height,linelength
-        # Split lines
-        if len(texts)<linelength:
-            texts = (texts,)
-        elif len(texts)<2*linelength:
-            parts = texts.split(' ')[::-1]
-            tl = len(texts)//2
-            al = -1
-            a = []
-            while al<tl:
-                nx = parts.pop()
-                al += len(nx)+1
-                a.append(nx)
-            texts = (' '.join(a),' '.join(parts[::-1]))
-        else:
-            parts = texts.split(' ')[::-1]
-            tl = len(texts)//3
-            al = -1
-            a = []
-            while al<tl:
-                nx = parts.pop()
-                al += len(nx)+1
-                a.append(nx)
-            tl = (sum(map(len,parts))+len(parts)-1)//2
-            bl = -1
-            b = []
-            while bl<tl:
-                nx = parts.pop()
-                bl += len(nx)+1
-                b.append(nx)
-            texts = (' '.join(a),' '.join(b),' '.join(parts[::-1]))
+        sections = texts.split('\n')
+        texts = []
+        for sect in sections:texts+=autosplit(sect)
         self.texts = texts
         self.x = drift(0.1,width/2)
         self.y = drift(0.1,150,100)
@@ -521,7 +494,7 @@ def draw_captions():
     if oy>-180:
         bx = 250,width-250
         by = 0,oy+180
-        setcolor(rgb=0.7)
+        setcolor(rgba=(0.3,)*3+(0.8,))
         setpolyclip([[bx[0]-40,by[0]],[bx[1]+40,by[0]],[bx[1],by[1]],[bx[0],by[1]]])
         fill()
         for capt in captions:
@@ -558,6 +531,40 @@ bindmouse('mouse event',onclick)
 # Functional utilities
 #
 # ======================================================================================================================================================
+
+def autosplit(texts):
+    """
+    Automatically break up text, used by captions
+    """
+    if len(texts)<linelength:
+        return [texts]
+    elif len(texts)<2*linelength:
+        parts = texts.split(' ')[::-1]
+        tl = len(texts)//2
+        al = -1
+        a = []
+        while al<tl:
+            nx = parts.pop()
+            al += len(nx)+1
+            a.append(nx)
+        return [' '.join(a),' '.join(parts[::-1])]
+    else:
+        parts = texts.split(' ')[::-1]
+        tl = len(texts)//3
+        al = -1
+        a = []
+        while al<tl:
+            nx = parts.pop()
+            al += len(nx)+1
+            a.append(nx)
+        tl = (sum(map(len,parts))+len(parts)-1)//2
+        bl = -1
+        b = []
+        while bl<tl:
+            nx = parts.pop()
+            bl += len(nx)+1
+            b.append(nx)
+        return [' '.join(a),' '.join(b),' '.join(parts[::-1])]
 
 def funcify(func):
     """
@@ -791,7 +798,7 @@ comparators = {
 # Particle systems, images, etc.
 base_particles = 100
 palette = lambda:None # Colour palette, dummy object
-palette.narration = ('rgb',0.4)
+palette.narration = ('rgb',drgb('C3D0D8'))
 palette.player = ('rgb',drgb('E50085'))
 palette.lily = ('rgb',drgb('00BBCC'))
 palette.yu = ('rgb',drgb('F2C500'))
@@ -800,7 +807,6 @@ palette.lime = ('rgb',drgb('A2F218')) # Unused
 palette.green = ('rgb',drgb('00E56B')) # Unused
 palette.cyan = ('rgb',drgb('00CCC5')) # Unused
 palette.blue = ('rgb',drgb('1442CC')) # Unused
-palette.grey = ('rgb',drgb('C3D0D8')) # Unused
 love_meter = drift(0.03,0.5) # 0 = hate, 1 = love
 love_meter_x = drift(0.03,-200)
 love_meter_particle_system = particle_system([[-200,-80],[-height/2,height/2]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height/2+100,8*base_particles,2)
@@ -847,7 +853,7 @@ mouse_x,mouse_y = mouse_xy = 0,0
 # Opening sequence
 
 p_intro_a = fw_branch_to(['Play','p_1_1aa'])
-p_intro_ba = fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),redir('p_intro_bb'),fw_caption_set('Yu and Lily were lovers in highschool.',palette.narration)
+p_intro_ba = fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),redir('p_intro_bb'),fw_caption_set('You Yu and Lily were high school sweethearts',  palette.narration)
 p_intro_bb = redir('p_intro_bc'),fw_caption_set('You play as Marcel, their mutual friend.',palette.narration)
 p_intro_bc = fw_background_set(txy=(1936,height/2)),redir('p_intro_bd'),fw_caption_set('Here you are at an art gallery',palette.narration)
 p_intro_bd = redir('p_intro_be'),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration)
@@ -892,9 +898,9 @@ p_1_3ab = redir('p_1_3ac'),fw_caption_set('Huh? Oh, did you read the entire syll
 p_1_3ac = redir('p_1_3ad'),fw_caption_set('I like to be prepared.',palette.lily)
 p_1_3ad = fw_branch_to(('Rustam','p_1_3ba'),('Clubs','p_1_3ca'))
 
-p_1_3ba = redir('p_1_3bb'),fw_caption_set('Anything new with Rustam?',palette.player)
-p_1_3bb = redir('p_1_3bc'),fw_caption_set('Well, now that you\'ve asked, I kind of have to tell you don\'t I?',palette.lily)
-p_1_3bc = redir('p_1_3bd'),fw_caption_set('No. You\'re entitled to some amount of privacy.',palette.player)
+p_1_3ba = redir('p_1_3bb'),fw_caption_set('Marcel\nAnything new with Rustam?',palette.player)
+p_1_3bb = redir('p_1_3bc'),fw_caption_set('Lily\nWell, now that you\'ve asked, I kind of have to tell you don\'t I?',palette.lily)
+p_1_3bc = redir('p_1_3bd'),fw_caption_set('Marcel\nNo. You\'re entitled to some amount of privacy.',palette.player)
 p_1_3bd = redir('p_1_3be'),fw_caption_set('But it\'d be bad mannered not to share something so petty.',palette.lily)
 p_1_3be = redir('p_1_3bf'),fw_caption_set('So the one time I\'m free for a date, Rustam is streaming League of Legends.',palette.lily)
 p_1_3bf = redir('p_1_3bg'),fw_caption_set('It wouldn\'t have been so bad if he had seemed to care.',palette.lily)

@@ -574,14 +574,22 @@ public class engine {
 		String okey = keywords[0];
 		String key = okey.toLowerCase();
 		PyObject value = args[0];
-		PyObject[] components = getgroupfrom(value,false,3);
-		double a = components[0].asDouble(), b = components[1].asDouble(), c = components[2].asDouble();
 		Color color;
-		if("rgb".equals(key)){
+		if("rgba".equals(key)){
+			PyObject[] components = getgroupfrom(value,false,4);
+			double a = components[0].asDouble(), b = components[1].asDouble(), c = components[2].asDouble(), d = components[3].asDouble();
+			color = new Color((int)Math.round(a*255),(int)Math.round(b*255),(int)Math.round(c*255),(int)Math.round(d*255));
+		}else if("rgb".equals(key)){
+			PyObject[] components = getgroupfrom(value,false,3);
+			double a = components[0].asDouble(), b = components[1].asDouble(), c = components[2].asDouble();
 			color = new Color((int)Math.round(a*255),(int)Math.round(b*255),(int)Math.round(c*255));
 		}else if("hsv".equals(key) || "hsb".equals(key)){
+			PyObject[] components = getgroupfrom(value,true,3);
+			double a = components[0].asDouble(), b = components[1].asDouble(), c = components[2].asDouble();
 			color = Color.getHSBColor((float)a,(float)b,(float)c);
 		}else if("hsl".equals(key)){
+			PyObject[] components = getgroupfrom(value,true,3);
+			double a = components[0].asDouble(), b = components[1].asDouble(), c = components[2].asDouble();
 			b*=c<0.5?c:1-c;
 			color = Color.getHSBColor((float)a,(float)(2*b/(b+c)),(float)(b+c));
 		}else{
