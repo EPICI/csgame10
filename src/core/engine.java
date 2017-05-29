@@ -194,6 +194,7 @@ public class engine {
 
 			@Override
 			public void windowClosed(WindowEvent arg0) {
+				_delete = true;
 				die();
 			}
 
