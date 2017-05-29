@@ -526,6 +526,18 @@ def onclick(etype,exy,ebutton):
             ready[0].act()
 bindmouse('mouse event',onclick)
 
+def onkey(etype,ekey):
+    """
+    Handles key events
+    """
+    global player_name,player_name_edit
+    if player_name_edit and etype=='press':
+        if ekey==8:
+            player_name = player_name[:-1]
+        elif chr(ekey).lower() in 'abcdefghijklmnopqrstuvwxyz-\'' and len(player_name)<20:
+            player_name += chr(ekey)
+bindmouse('key event',onkey)
+
 # ======================================================================================================================================================
 #
 # Functional utilities
@@ -828,6 +840,8 @@ background_x = drift(0.003,width/2)
 background_y = drift(0.003,height/2)
 characters = {} # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
+player_name = ''
+player_name_edit = False
 
 # ======================================================================================================================================================
 #
