@@ -110,6 +110,10 @@ public class engine {
 	 * Whether to print debug output
 	 */
 	public static boolean _debug;
+	/**
+	 * Whether to delete on close
+	 */
+	public static boolean _delete;
 
 	/**
 	 * The main method
@@ -219,6 +223,7 @@ public class engine {
 		// Run script
 		try{
 			_interpreter.execfile(scriptName);
+			_delete = true;
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -240,8 +245,10 @@ public class engine {
 		// Final garbage collection
 		System.gc();
 		// Delete log file
-		if(!new File(_log).delete()){
-			System.out.println("Unable to delete log file");
+		if(_delete){
+			if(!new File(_log).delete()){
+				System.out.println("Unable to delete log file");
+			}
 		}
 		// Clean up frame
 		_frame.dispose();

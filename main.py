@@ -494,11 +494,6 @@ def draw_captions():
         setcolor(rgb=0.95)
         setpolyclip([[bx[0]-40,by[0]],[bx[1]+40,by[0]],[bx[1],by[1]],[bx[0],by[1]]])
         fill()
-        img_glow = button_glow[1]
-        caption_particle_system.step()
-        for particle in caption_particle_system.particles:
-            px,py = particle[0:2]
-            drawimage(img_glow,(px+ox,py+oy))
         for capt in captions:
             capt.draw()
 
@@ -538,6 +533,7 @@ def funcify(func):
     """
     Returns the function version of the given
     """
+    if func is None:return lambda:None
     tfunc = type(func)
     if tfunc==str:return funcify(globals()[func])
     if tfunc==list or tfunc==tuple:return fw_exec_all(*func)
@@ -574,6 +570,7 @@ def fw_branch_to(*others):
             func = params[1]
             buttons.append(choice_button(text,index,func))
     return ifw_branch_to
+redir = lambda x:fw_branch_to(('...',x))
 
 def fw_exec_all(*funcs):
     """
@@ -732,6 +729,17 @@ def fw_character_set(cname,**kwargs):
             ichar.alpha.target = float(ta)
     return ifw_character_jump
 
+def drgb(istr):
+    """
+    Get RGB colour from hex string
+    """
+    r = int(istr[-6:],16)
+    b = r&0xff
+    r>>=8
+    g = r&0xff
+    r>>=8
+    return r/255,g/255,b/255
+
 # ======================================================================================================================================================
 #
 # Initialize globals
@@ -752,6 +760,15 @@ comparators = {
 base_particles = 100
 palette = lambda:None # Colour palette, dummy object
 palette.narration = ('rgb',0.3)
+palette.player = ('rgb',drgb('E50085'))
+palette.lily = ('rgb',drgb('00BBCC'))
+palette.yu = ('rgb',drgb('F2C500'))
+palette.rustam = ('rgb',drgb('E54F2D'))
+palette.lime = ('rgb',drgb('A2F218')) # Unused
+palette.green = ('rgb',drgb('00E56B')) # Unused
+palette.cyan = ('rgb',drgb('00CCC5')) # Unused
+palette.blue = ('rgb',drgb('1442CC')) # Unused
+palette.grey = ('rgb',drgb('C3D0D8')) # Unused
 love_meter = drift(0.03,0.5) # 0 = hate, 1 = love
 love_meter_x = drift(0.03,-200)
 love_meter_particle_system = particle_system([[-200,-80],[-height/2,height/2]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height/2+100,8*base_particles,2)
@@ -762,11 +779,10 @@ timer_y = drift(0.1,height+300)
 timer_particle_system = particle_system([[-80,80],[80,200]],[[-1,1],[-2,0]],[[-0.01,0.01],[-0.01,0.01]],300,1*base_particles,1)
 captions = []
 caption_y = drift(0.1,-200)
-caption_particle_system = particle_system([[-width/2,width/2],[-200,-80]],[[-1,1],[0,2]],[[-0.01,0.01],[-0.01,0.01]],width,15*base_particles,2)
 buttons = []
 button_glow = [loadimage('glow'+str(i)+'.png') for i in range(1,6)]
 button_particle_systems = [particle_system([[80,200],[-80,80]],[[-4,-1],[-2,2]],[[-0.02,0.02],[-0.02,0.02]],width,3*base_particles,1) for _ in range(8)]
-for particles in button_particle_systems+[love_meter_particle_system,timer_particle_system,caption_particle_system]:
+for particles in button_particle_systems+[love_meter_particle_system,timer_particle_system]:
     for _ in range(200):
         particles.step()
 background_image = None
@@ -774,7 +790,6 @@ background_x = drift(0.003,width/2)
 background_y = drift(0.003,height/2)
 characters = {} # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
-player_name = '.' # not feeling creative right now
 
 # ======================================================================================================================================================
 #
@@ -798,24 +813,55 @@ player_name = '.' # not feeling creative right now
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Opening sequence
-p_intro_0 = fw_branch_to(['Play','p_1_1a'])
-p_intro_1a = fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),fw_branch_to(('...','p_intro_1b')),fw_caption_set('Yu and Lily were lovers in highschool.',palette.narration)
-p_intro_1b = fw_branch_to(('...','p_intro_1c')),fw_caption_set('You were their mutual friend.',palette.narration)
-p_intro_1c = fw_background_set(txy=(1936,height/2)),fw_branch_to(('...','p_intro_1d')),fw_caption_set('Here you are at an art gallery',palette.narration)
-p_intro_1d = fw_branch_to(('...','p_intro_1e')),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration)
-p_intro_1e = fw_branch_to(('...','p_intro_1f')),fw_caption_set('Lily is an art director at Axolotl Design Inc.\nand is already married to a hotshot lawyer.',palette.narration)
-p_intro_1f = fw_branch_to(('...','p_intro_0')),fw_caption_set('Could this have gone differently?',palette.narration)
+
+p_intro_a = fw_branch_to(['Play','p_1_1aa'])
+p_intro_ba = fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),redir('p_intro_bb'),fw_caption_set('Yu and Lily were lovers in highschool.',palette.narration)
+p_intro_bb = redir('p_intro_bc'),fw_caption_set('You play as Marcel, their mutual friend.',palette.narration)
+p_intro_bc = fw_background_set(txy=(1936,height/2)),redir('p_intro_bd'),fw_caption_set('Here you are at an art gallery',palette.narration)
+p_intro_bd = redir('p_intro_be'),fw_caption_set('where you find Lily and her commissioned painter, Yu.',palette.narration)
+p_intro_be = redir('p_intro_bf'),fw_caption_set('Lily is an art director at Axolotl Design Inc.\nand is already married to a hotshot lawyer.',palette.narration)
+p_intro_bf = redir('p_intro_a'),fw_caption_set('Could this have gone differently?',palette.narration)
 # Currently sets to the default, TODO read save file if present
-p_intro = p_intro_1a
+p_intro = p_intro_ba
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 1: before business class
-p_1_1a = fw_background_set(img='hallway.png',cxy=(width/2,height-600)),fw_branch_to(('...','p_1_1b')),fw_caption_set('6 years earlier, in grade 12, just before\nthe start of a shared class, international business.',palette.narration)
-p_1_1b = fw_meter_status(True),fw_background_set(txy=(width/2,600)),fw_branch_to(('Talk to Yu','p_1_2a'),('Talk to Lily','p_1_3a')),fw_timer_set(15,'p_1_4a')
 
+p_1_1aa = fw_background_set(img='hallway.png',cxy=(width/2,height-600)),redir('p_1_1ab'),fw_caption_set('6 years earlier, in grade 12, just before\nthe start of a shared class, International Business.',palette.narration)
+p_1_1ab = redir('p_1_1ac'),fw_caption_set('Lily is currently dating Rustam.\nYu is a hobbyist painter.',palette.narration)
+p_1_1ac = fw_meter_status(True),fw_background_set(txy=(width/2,600)),fw_branch_to(('Talk to Yu','p_1_2aa'),('Talk to Lily','p_1_3aa')),fw_timer_set(15,'p_1_4aa')
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Part 1, scene 2: talking with Yu before class
+
+p_1_2aa = fw_branch_to(('Hi','p_1_2ba')),fw_timer_set(7,'p_1_2ca')
+
+p_1_2ba = redir('p_1_2bb'),fw_caption_set('Hi Yu.',palette.player)
+p_1_2bb = redir('p_1_2bc'),fw_caption_set('Oh. Hi Marcel.',palette.yu)
+p_1_2bc = redir('p_1_2bd'),fw_caption_set('I\'m just drawing a thing for Painting.',palette.yu)
+p_1_2bd = fw_branch_to(('Look','p_2_da')),fw_timer_set(5,'p_2_ea')
+
+p_1_2ca = redir('p_1_cb'),fw_caption_set('Hi Marcel.',palette.yu)
+p_1_2cb = redir('p_1_cc'),fw_caption_set('Bored? I guess anyone would be.',palette.yu)
+p_1_2cc = redir('p_4_aa'),fw_caption_set('I\'ll get back to painting.',palette.yu)
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Part 1, scene 3: talking with Lily before class
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Part 1, scene 4: business class
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Go!
 funcify(p_intro)()
 
-# Drivers and rendering
+# ======================================================================================================================================================
+#
+# Rendering and updates
+#
+# ======================================================================================================================================================
 for _ in mainloop():
     mouse_x,mouse_y = mouse_xy = mousepos()
     draw_background()
