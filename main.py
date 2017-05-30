@@ -203,7 +203,7 @@ class caption:
     """
     Some text and other data, collectively representing a caption
     """
-    def __init__(self,texts,colors=None):
+    def __init__(self,texts,colors=None,style=0):
         global width,height,linelength
         sections = texts.split('\n')
         texts = []
@@ -213,6 +213,7 @@ class caption:
         self.y = drift(0.1,150,100)
         self.alpha = drift(0.1,1,0) # Alpha
         self.color = {'rgb':0} if colors is None else {colors[0]:colors[1]}
+        self.style = style
         self.live = 2
     def alive(self):
         """
@@ -232,7 +233,7 @@ class caption:
         Render the caption
         """
         global width,height
-        setfont(None,-1,30)
+        setfont(None,self.style,30)
         setcolor(**self.color)
         setpolyclip()
         x = self.x
@@ -367,13 +368,17 @@ def draw_background():
     """
     global background_image,background_x,background_y
     setpolyclip()
-    if background_image is not None:
+    if type(background_image)==dict:
+        background_image = next(iter(background_image.items()))
+    if type(background_image) in {tuple,list}:
+        setcolor(**{background_image[0]:tuple(map(float,background_image[1]))})
+    elif background_image is not None:
         if type(background_image)==str:background_image=loadimage(background_image)
         background_x.step()
         background_y.step()
         drawimage(background_image,(float(background_x),float(background_y)))
     else:
-        setcolor(1.0)
+        setcolor(rgb=1.0)
         fill()
 
 def draw_characters():
@@ -530,13 +535,15 @@ def onkey(etype,ekey):
     """
     Handles key events
     """
-    global player_name,player_name_edit
+    global player_name,player_name_edit,captions
     if player_name_edit and etype=='press':
+        if ekey==222:ekey=39
         if ekey==8:
             player_name = player_name[:-1]
-        elif chr(ekey).lower() in 'abcdefghijklmnopqrstuvwxyz-\'' and len(player_name)<20:
+        elif chr(ekey).lower() in 'abcdefghijklmnopqrstuvwxyz-\' ' and len(player_name)<20:
             player_name += chr(ekey)
-bindmouse('key event',onkey)
+        captions[0].texts[1] = player_name if player_name else '<type something>'
+bindkey('key event',onkey)
 
 # ======================================================================================================================================================
 #
@@ -778,6 +785,14 @@ def fw_character_set(cname,**kwargs):
             ichar.alpha.target = float(ta)
     return ifw_character_jump
 
+def fw_var_set(name,value):
+    """
+    Set a global variable
+    """
+    def ifw_var_set():
+        globals()[name]=value
+    return ifw_var_set
+
 def drgb(istr):
     """
     Get RGB colour from hex string
@@ -788,6 +803,28 @@ def drgb(istr):
     g = r&0xff
     r>>=8
     return r/255,g/255,b/255
+
+def fw_validate_name(func):
+    """
+    Proceed only if the name is valid
+    """
+    def ifw_validate_name():
+        global player_name,player_name_edit
+        # Capitalize
+        ocs = list(player_name)
+        cap = 1
+        for i,c in enumerate(ocs):
+            if c in '\'- ':
+                if cap==0:break
+                cap=0
+            else:
+                ocs[i] = c.lower() if cap else c.upper()
+                cap+=1
+        if cap>=2:
+            player_name = ''.join(ocs)
+            player_name_edit = False
+            funcify(func)()
+    return ifw_validate_name
 
 # ======================================================================================================================================================
 #
@@ -841,7 +878,7 @@ background_y = drift(0.003,height/2)
 characters = {} # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
 player_name = ''
-player_name_edit = False
+player_name_edit = True
 
 # ======================================================================================================================================================
 #
@@ -866,7 +903,8 @@ player_name_edit = False
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Opening sequence
 
-##p_intro_a = fw_branch_to(['Play','p_1_1aa'])
+p_intro_a = fw_branch_to(['Play','p_1_1aa'])
+p_intro_ba = fw_background_set(img=('rgb',(0,0,0))),redir('p_intro_bb'),fw_caption_set('Whatever we are, I still remember the way we were',palette.narration,2)
 ##p_intro_ba = fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),redir('p_intro_bb'),fw_caption_set('You Yu and Lily were high school sweethearts',  palette.narration)
 ##p_intro_bb = redir('p_intro_bc'),fw_caption_set('You play as Marcel, their mutual friend.',palette.narration)
 ##p_intro_bc = fw_background_set(txy=(1936,height/2)),redir('p_intro_bd'),fw_caption_set('Here you are at an art gallery',palette.narration)
@@ -943,7 +981,7 @@ p_intro = p_intro_ba
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
-funcify(p_intro)()
+funcify((fw_background_set(img=('rgb',(0,0,0))),redir(fw_validate_name(p_intro)),fw_caption_set('Enter a name\n ',palette.narration)))()
 
 # ======================================================================================================================================================
 #
