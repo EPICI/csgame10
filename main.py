@@ -46,6 +46,18 @@ def unloadimage(name):
     """
     images.pop(name,None)
 
+# Override image drawing
+odrawimage = drawimage
+def drawimage(image,*args,**kwargs):
+    """
+    Redirect to draw method if available
+    Can have side effects if arguments not matching drawimage
+    """
+    if hasattr(image,'draw'):
+        image.draw(*args,**kwargs)
+    else:
+        odrawimage(image,*args,**kwargs)
+
 # ======================================================================================================================================================
 #
 # Classes
@@ -168,6 +180,11 @@ class image_sequence_loader:
             for name in self.seq.names:
                 unloadimage(name)
         self.seq = None
+    def draw(self,*args,**kwargs):
+        """
+        Convenience draw method
+        """
+        self.fetch().draw(*args,**kwargs)
 
 class particle_system:
     """
