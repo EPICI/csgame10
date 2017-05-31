@@ -1020,6 +1020,46 @@ p_1_4ag = redir('p_1_4ah'),fw_caption_set('Mr.Faisal\nAnd turn to page 88.',pale
 p_1_4ah = redir('p_2_1aa'),fw_caption_set('Mr.Faisal\nLet\'s run through attendance...',palette.teacher)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Part 2, scene 1: at cafe together
+
+p_2_1aa = redir('p_2_1ab'),fw_caption_set('The next day.',palette.narration)
+p_2_1ab = redir('p_2_1ac'),fw_caption_set('The four of you are getting coffee as a group.',palette.narration)
+p_2_1ac = redir('p_2_1ad'),fw_caption_set('Yu is tucked in the corner of the booth, sketching while sneaking glances at Lily.',palette.narration)
+p_2_1ad = redir('p_2_1ae'),fw_caption_set('Lily is checking her phone.',palette.narration)
+p_2_1ae = redir('p_2_1af'),fw_caption_set('Rustam is discreetly eyeing the attractive barista.',palette.narration)
+p_2_1af = redir('p_2_1ag'),fw_caption_set('No one is talking.',palette.narration)
+p_2_1ag = fw_branch_to(('Ask Rustam about his League of Legends night','p_2_1ba'),('Ask Yu about the business project','p_2_1ca')),fw_timer_set(15,'p_2_1da')
+
+p_2_1ba = redir('p_2_1bb'),fw_caption_set('Rustam, how was your gaming night?',palette.player,prefix='player_name')
+p_2_1bb = redir('p_2_1bc'),fw_caption_set('Rustam\nWe played \'till 4 AM.',palette.rustam)
+p_2_1bc = redir('p_2_1bd'),fw_caption_set('Rustam\nSo lit.',palette.rustam)
+p_2_1bd = redir('p_2_1be')
+p_2_1be = redir('p_2_1bf'),fw_caption_set('Lily\nReally?',palette.lily,2)
+p_2_1bf = redir('p_2_1bg'),fw_caption_set('Lily\nThat\'s how you spent the whole night?',palette.lily,2)
+p_2_1bg = redir('p_2_1bh'),fw_caption_set('Lily\nUgh! Why would anyone do that?',palette.lily,2)
+p_2_1bh = redir('p_2_1bi'),fw_caption_set('Lily\nWhy can\'t you be a little less social?',palette.lily,2)
+p_2_1bi = redir('p_2_1bj'),fw_caption_set('Lily\nWhy can\'t you be more like Yu?',palette.lily,3)
+p_2_1bj = redir('p_2_1bk')
+p_2_1bk = redir('p_2_1bl'),fw_caption_set('Yu\nIs that a compliment?',palette.yu)
+p_2_1bl = fw_branch_to(('Yes','p_2_1ea'),('No','p_2_1fa')),fw_timer_set(5,'p_2_1fa')
+
+p_2_1ea = redir('p_2_1eb'),fw_caption_set('Yu\nWell,',palette.yu)
+p_2_1eb = redir('p_2_1ec'),fw_caption_set('Yu\nI like League too.',palette.yu)
+p_2_1ec = redir('p_2_1ed'),fw_caption_set('Yu\nIn fact,',palette.yu)
+p_2_1ed = redir('p_2_1ee'),fw_caption_set('Yu\nI\'ve drawn some sketches of Jhin\'s Lotus Trap a few times in the past.',palette.yu)
+p_2_1ee = redir('p_2_1ef'),fw_caption_set('Lily\nReally?',palette.lily)
+p_2_1ef = redir('p_2_1eg'),fw_caption_set('Lily\nThat sounds pretty cool.',palette.lily)
+p_2_1eg = fw_branch_to(('Ask Yu to show them to the group','p_2_1ga'),('Continue to ask Rustam about League','p_2_1ha'))
+
+p_2_1ga = redir('p_2_1gb'),fw_caption_set('Can we see?',palette.player,prefix='player_name')
+p_2_1gb = redir('p_2_1gc'),fw_caption_set('Yu\nWell...',palette.yu)
+p_2_1gc = redir('p_2_1gd'),fw_caption_set('Come on, your sketches are always fantastic.',palette.player,prefix='player_name')
+p_2_1gd = redir('p_2_1ge'),fw_caption_set('He concedes and cracks the sketchbook open, flipping through the pages until he stops on a stippled depiction of Jhin.',palette.narration)
+p_2_1ge = redir('p_2_1gf'),fw_caption_set('Lily\nWow.',palette.lily,2)
+p_2_1gf = redir('p_2_1gg'),fw_caption_set('Lily\nThat\'s amazing.',palette.lily,2)
+p_2_1gg = redir('p_2_1gh'),fw_caption_set('Rustam\nNoice.',palette.rustam,2)
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
 funcify((fw_background_set(img=('rgb',(0,0,0))),redir(fw_validate_name(p_intro)),fw_caption_set('Enter a name\n ',palette.narration)))()
 
