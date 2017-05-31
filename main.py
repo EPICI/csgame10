@@ -1058,6 +1058,8 @@ p_2_1cl = redir('p_2_1cm'),fw_caption_set('Lily\nShow us.',palette.lily)
 p_2_1cm = redir('p_2_1cn'),fw_caption_set('Rustam\nI second that.',palette.rustam)
 p_2_1cn = redir('p_2_1ed'),fw_caption_set('Yu\nWell...',palette.yu)
 
+p_2_1da = None # Original timeout
+
 p_2_1ea = redir('p_2_1eb'),fw_caption_set('Yu\nWell,',palette.yu)
 p_2_1eb = redir('p_2_1ec'),fw_caption_set('Yu\nI like League too.',palette.yu)
 p_2_1ec = redir('p_2_1ed'),fw_caption_set('Yu\nIn fact,',palette.yu)
@@ -1065,6 +1067,8 @@ p_2_1ed = redir('p_2_1ee'),fw_caption_set('Yu\nI\'ve drawn some sketches of Jhin
 p_2_1ee = redir('p_2_1ef'),fw_caption_set('Lily\nReally?',palette.lily)
 p_2_1ef = redir('p_2_1eg'),fw_caption_set('Lily\nThat sounds pretty cool.',palette.lily)
 p_2_1eg = fw_branch_to(('Ask Yu to show them to the group','p_2_1ga'),('Continue to ask Rustam about League','p_2_1ha'))
+
+p_2_1fa = None # No or timeout
 
 p_2_1ga = redir('p_2_1gb'),fw_caption_set('Can we see?',palette.player,prefix='player_name')
 p_2_1gb = redir('p_2_1gc'),fw_caption_set('Yu\nWell...',palette.yu)
@@ -1095,6 +1099,8 @@ p_2_1gz = redir('p_2_1ga2'),fw_caption_set('Lily\nWoohoo!',palette.lily)
 p_2_1ga2 = redir('p_2_1gb2'),fw_caption_set('Really bruh?',palette.rustam)
 p_2_1gb2 = redir('p_2_1gc2'),fw_caption_set('Well,',palette.player,prefix='player_name')
 p_2_1gc2 = redir('???'),fw_caption_set('This is going to be interesting.',palette.player,prefix='player_name')
+
+p_2_1ha = None # More LoL talk
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
