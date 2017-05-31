@@ -38,7 +38,9 @@ def loadimage(name):
     Load an image from file
     Memoizes
     """
-    if name not in images:images[name]=oloadimage(name)
+    if type(name)==list:name=tuple(name)
+    if name not in images:
+        images[name]=oloadimage(name) if type(name)==str else image_sequence_loader(*name)
     return images[name]
 def unloadimage(name):
     """
@@ -227,11 +229,13 @@ class caption:
     """
     Some text and other data, collectively representing a caption
     """
-    def __init__(self,texts,colors=None,style=0):
+    def __init__(self,texts,colors=None,style=0,**kwargs):
         global width,height,linelength
+        if 'prefix' in kwargs:texts=globals()[kwargs['prefix']]+'\n'+texts
+        self.size = size = 8000//(len(texts)+200)
         sections = texts.split('\n')
         texts = []
-        for sect in sections:texts+=autosplit(sect)
+        for sect in sections:texts+=autosplit(sect,size)
         self.texts = texts
         self.x = drift(0.1,width/2)
         self.y = drift(0.1,150,100)
@@ -257,7 +261,7 @@ class caption:
         Render the caption
         """
         global width,height
-        setfont(None,self.style,30)
+        setfont(None,self.style,self.size)
         setcolor(**self.color)
         setpolyclip()
         x = self.x
@@ -271,8 +275,9 @@ class caption:
         ialpha = float(ialpha)
         if ialpha<=0:return
         for text in self.texts:
-            image = alpha(render(text),ialpha)
-            drawimage(image,(x,y))
+            if text:
+                image = alpha(render(text),ialpha)
+                drawimage(image,(x,y))
             y -= 40
 
 class choice_button:
@@ -574,39 +579,27 @@ bindkey('key event',onkey)
 #
 # ======================================================================================================================================================
 
-def autosplit(texts):
+def autosplit(texts,size):
     """
     Automatically break up text, used by captions
     """
-    if len(texts)<linelength:
-        return [texts]
-    elif len(texts)<2*linelength:
-        parts = texts.split(' ')[::-1]
-        tl = len(texts)//2
-        al = -1
+    linelength=1600//size
+    result = []
+    parts = texts.split(' ')[::-1]
+    bl = len(texts)
+    while bl>linelength:
         a = []
+        al = -1
+        tl = bl//ceil(bl/linelength)
         while al<tl:
             nx = parts.pop()
-            al += len(nx)+1
+            ic = len(nx)+1
+            al += ic
+            bl -= ic
             a.append(nx)
-        return [' '.join(a),' '.join(parts[::-1])]
-    else:
-        parts = texts.split(' ')[::-1]
-        tl = len(texts)//3
-        al = -1
-        a = []
-        while al<tl:
-            nx = parts.pop()
-            al += len(nx)+1
-            a.append(nx)
-        tl = (sum(map(len,parts))+len(parts)-1)//2
-        bl = -1
-        b = []
-        while bl<tl:
-            nx = parts.pop()
-            bl += len(nx)+1
-            b.append(nx)
-        return [' '.join(a),' '.join(b),' '.join(parts[::-1])]
+        result.append(' '.join(a))
+    result.append(' '.join(parts[::-1]))
+    return result
 
 def funcify(func):
     """
@@ -719,14 +712,14 @@ def fw_timer_set(seconds,func=None):
         timer_set(seconds,func)
     return ifw_timer_set
 
-def fw_caption_set(*args):
+def fw_caption_set(*args,**kwargs):
     """
     Return a function to clear all captions and set it to the given
     """
     def ifw_caption_set():
         global captions
         clear_captions()
-        captions.append(caption(*args))
+        captions.append(caption(*args,**kwargs))
     return ifw_caption_set
 
 def fw_background_set(**kwargs):
@@ -835,7 +828,7 @@ def fw_validate_name(func):
         global player_name,player_name_edit
         # Capitalize
         ocs = list(player_name)
-        cap = 1
+        cap = 0
         for i,c in enumerate(ocs):
             if c in '\'- ':
                 if cap==0:break
@@ -845,6 +838,7 @@ def fw_validate_name(func):
                 cap+=1
         if cap>=2:
             player_name = ''.join(ocs)
+            print(ocs,player_name)
             player_name_edit = False
             funcify(func)()
     return ifw_validate_name
@@ -856,7 +850,6 @@ def fw_validate_name(func):
 # ======================================================================================================================================================
 
 # Constants and configurations
-linelength = 50 # Number of characters to allow in one line for captions (soft limit)
 # Comparators
 epsilon = 1e-9
 comparators = {
@@ -871,14 +864,14 @@ comparators = {
 base_particles = 100
 palette = lambda:None # Colour palette, dummy object
 palette.narration = ('rgb',drgb('C3D0D8'))
-palette.player = ('rgb',drgb('E50085'))
-palette.lily = ('rgb',drgb('00BBCC'))
-palette.yu = ('rgb',drgb('F2C500'))
-palette.rustam = ('rgb',drgb('E54F2D'))
-palette.lime = ('rgb',drgb('A2F218')) # Unused
-palette.green = ('rgb',drgb('00E56B')) # Unused
-palette.cyan = ('rgb',drgb('00CCC5')) # Unused
-palette.blue = ('rgb',drgb('1442CC')) # Unused
+palette.player = ('rgb',drgb('E5A0C8'))
+palette.lily = ('rgb',drgb('97D3D8'))
+palette.yu = ('rgb',drgb('E5D489'))
+palette.rustam = ('rgb',drgb('E5A395'))
+palette.lime = ('rgb',drgb('D5F2A9')) # Unused
+palette.green = ('rgb',drgb('A0E5B4')) # Unused
+palette.cyan = ('rgb',drgb('97D8D4')) # Unused
+palette.blue = ('rgb',drgb('B9B7E5')) # Unused
 love_meter = drift(0.03,0.5) # 0 = hate, 1 = love
 love_meter_x = drift(0.03,-200)
 love_meter_particle_system = particle_system([[-200,-80],[-height/2,height/2]],[[0,2],[-1,1]],[[-0.01,0.01],[-0.01,0.01]],height/2+100,8*base_particles,2)
@@ -928,6 +921,23 @@ player_name_edit = True
 
 p_intro_a = fw_branch_to(['Play','p_1_1aa'])
 p_intro_ba = fw_background_set(img=('rgb',(0,0,0))),redir('p_intro_bb'),fw_caption_set('Whatever we are, I still remember the way we were',palette.narration,2)
+p_intro_bb = fw_background_set(img='gallery2.png',cxy=(width/2,height/2)),redir('p_intro_bc')
+p_intro_bc = redir('p_intro_bd'),fw_caption_set('Yu! What\'s wrong?',palette.player,prefix='player_name')
+p_intro_bd = redir('p_intro_be'),fw_caption_set('Yu\nI lost her. It\'s too late now.',palette.yu)
+p_intro_be = redir('p_intro_bf'),fw_caption_set('Wait, what do you mean, who?',palette.player,prefix='player_name')
+p_intro_bf = redir('p_intro_bg'),fw_caption_set('Yu\nLily.',palette.yu)
+p_intro_bg = redir('p_intro_bh'),fw_caption_set('It\'s raining. Tonight is the world premiere of Yu\'s first major painting:',palette.narration)
+p_intro_bh = redir('p_intro_bi'),fw_caption_set('Perennial Requiem',palette.narration,2)
+p_intro_bi = redir('p_intro_bj'),fw_caption_set('A banquet is currently being held in his celebration at the Toronto Axolotl gallery.',palette.narration)
+p_intro_bj = redir('p_intro_bk'),fw_caption_set('Tonight is the night Yu had prepared for for many months.',palette.narration)
+p_intro_bk = redir('p_intro_bl'),fw_caption_set('Tonight was supposed to be the night he would see Lily, his high school sweetheart, for the first time in 5 years. He had prepared to confess his love and apologize for the conflict that happened many years ago.',palette.narration)
+p_intro_bl = redir('p_intro_bm'),fw_caption_set('That was the plan.',palette.narration)
+p_intro_bm = redir('p_intro_bn')
+p_intro_bn = redir('p_intro_bo'),fw_caption_set('Heartbroken, Yu sobs outside. He is your best friend having been in your class throughout high school. You want to help.',palette.narration)
+p_intro_bo = redir('p_intro_bp'),fw_caption_set('You think back to the time when you, Yu and Lily were all just students in business class. The two high school sweethearts were destined to be future partners.',palette.narration)
+p_intro_bp = redir('p_intro_bq'),fw_caption_set('Until that fateful day...',palette.narration)
+p_intro_bq = redir('p_intro_br'),fw_caption_set('That terrible misunderstanding...',palette.narration)
+p_intro_br = redir('p_intro_a'),fw_caption_set('If you only encouraged them more back then, would this have happened?',palette.narration)
 ##p_intro_ba = fw_background_set(img='artgallery.png',cxy=(width-1936,height/2)),redir('p_intro_bb'),fw_caption_set('You Yu and Lily were high school sweethearts',  palette.narration)
 ##p_intro_bb = redir('p_intro_bc'),fw_caption_set('You play as Marcel, their mutual friend.',palette.narration)
 ##p_intro_bc = fw_background_set(txy=(1936,height/2)),redir('p_intro_bd'),fw_caption_set('Here you are at an art gallery',palette.narration)
