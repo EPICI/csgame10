@@ -232,7 +232,7 @@ class caption:
     def __init__(self,texts,colors=None,style=0,**kwargs):
         global width,height,linelength
         if 'prefix' in kwargs:texts=globals()[kwargs['prefix']]+'\n'+texts
-        self.size = size = 8000//(len(texts)+200)
+        self.size = size = 12000//(len(texts)+300)
         sections = texts.split('\n')
         texts = []
         for sect in sections:texts+=autosplit(sect,size)
@@ -278,7 +278,7 @@ class caption:
             if text:
                 image = alpha(render(text),ialpha)
                 drawimage(image,(x,y))
-            y -= 40
+            y -= self.size
 
 class choice_button:
     """
@@ -1089,7 +1089,7 @@ p_2_1gp = redir('p_2_1gq')
 p_2_1gq = redir('p_2_1gr'),fw_caption_set('Ew.',palette.lily)
 p_2_1gr = redir('p_2_1gs'),fw_caption_set('Stop that.',palette.lily)
 p_2_1gs = redir('p_2_1gt'),fw_caption_set('Rustam\nNevar!',palette.rustam)
-p_2_1gt = redir('p_2_1gu'),fw_caption_set('Rustam\nI\'ll forever be yo-',palette.rustam),fw_timer_set(0.5,'p_2_1gv',False)
+p_2_1gt = redir('p_2_1gu'),fw_caption_set('Rustam\nI\'ll forever be yo-',palette.rustam),fw_timer_set(0.5,'p_2_1gu',False)
 p_2_1gu = redir('p_2_1gv'),fw_caption_set('Yu\nI\'ll do it.',palette.yu,2),fw_meter_add(0.05)
 p_2_1gv = redir('p_2_1gw')
 p_2_1gw = redir('p_2_1gx')
