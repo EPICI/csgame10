@@ -131,20 +131,20 @@ class image_sequence:
         """
         Is it at the end of the sequence?
         """
-        return self.frame>=self.frames
+        return self.frame>=self.frames-1
     def reset(self):
         """
         Go back to the beginning
         """
         self.frame = 0
-    def draw(ialpha,*args,**kwargs):
+    def draw(ixy,ialpha=1.0,**kwargs):
         """
         Draws the current frame
         """
-        if not ialpha or ialpha>0.998:
-            drawimage(self.images[self.frame],*args,**kwargs)
+        if ialpha>0.998:
+            drawimage(self.images[self.frame],ixy,**kwargs)
         elif ialpha>0.002:
-            drawimage(alpha(self.images[self.frame],ialpha),*args,**kwargs)
+            drawimage(alpha(self.images[self.frame],ialpha),ixy,**kwargs)
 
 class image_sequence_loader:
     """
@@ -184,7 +184,14 @@ class image_sequence_loader:
         """
         Convenience draw method
         """
-        self.fetch().draw(*args,**kwargs)
+        iseq = self.fetch()
+        iseq.draw(*args,**kwargs)
+        iseq.step()
+    def atend(self):
+        """
+        Convenience is-at-the-end-of-the-animation method
+        """
+        return self.fetch().atend()
 
 class particle_system:
     """
@@ -360,9 +367,7 @@ class character:
         ialpha = float(ialpha)
         if ialpha<=0:return
         iseql,redir = self.anims[self.current]
-        iseq = iseql.fetch()
-        iseq.draw(ialpha,(ix,iy))
-        iseq.step()
+        iseql.draw((ix,iy),ialpha)
         if iseq.atend():
             self.jumpto(redir.choose())
     def jumpto(self,name):
@@ -389,6 +394,7 @@ def draw_background():
         background_image = next(iter(background_image.items()))
     if type(background_image) in {tuple,list}:
         setcolor(**{background_image[0]:tuple(map(float,background_image[1]))})
+        fill()
     elif background_image is not None:
         if type(background_image)==str:background_image=loadimage(background_image)
         background_x.step()
