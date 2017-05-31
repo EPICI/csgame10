@@ -831,7 +831,7 @@ def fw_validate_name(func):
         cap = 0
         for i,c in enumerate(ocs):
             if c in '\'- ':
-                if cap==0:break
+                if cap<2:break
                 cap=0
             else:
                 ocs[i] = c.lower() if cap else c.upper()
@@ -1043,10 +1043,25 @@ p_2_1bj = redir('p_2_1bk')
 p_2_1bk = redir('p_2_1bl'),fw_caption_set('Yu\nIs that a compliment?',palette.yu)
 p_2_1bl = fw_branch_to(('Yes','p_2_1ea'),('No','p_2_1fa')),fw_timer_set(5,'p_2_1fa')
 
+p_2_1ca = redir('p_2_1cb'),fw_caption_set('Yu,',palette.player,prefix='player_name')
+p_2_1cb = redir('p_2_1cc'),fw_caption_set('How\'s your business project going?',palette.player,prefix='player_name')
+p_2_1cc = redir('p_2_1cd'),fw_caption_set('Yu\nAlright.',palette.yu)
+p_2_1cd = redir('p_2_1ce'),fw_caption_set('Okay...',palette.player,prefix='player_name')
+p_2_1ce = redir('p_2_1cf'),fw_caption_set('Who are you paired up with?',palette.player,prefix='player_name')
+p_2_1cf = redir('p_2_1cg'),fw_caption_set('Yu\nNoone yet.',palette.yu)
+p_2_1cg = redir('p_2_1ch'),fw_caption_set('Yu glances at Lily.',palette.narration)
+p_2_1ch = redir('p_2_1ci'),fw_caption_set('She\'s looking at his sketchbook.',palette.narration)
+p_2_1ci = redir('p_2_1cj'),fw_caption_set('Lily\nWow, that\'s cool.',palette.lily)
+p_2_1cj = redir('p_2_1ck'),fw_caption_set('Lily\nWhat are you working on?',palette.lily)
+p_2_1ck = redir('p_2_1cl'),fw_caption_set('Yu\nOh, nothing.',palette.yu)
+p_2_1cl = redir('p_2_1cm'),fw_caption_set('Lily\nShow us.',palette.lily)
+p_2_1cm = redir('p_2_1cn'),fw_caption_set('Rustam\nI second that.',palette.rustam)
+p_2_1cn = redir('p_2_1ed'),fw_caption_set('Yu\nWell...',palette.yu)
+
 p_2_1ea = redir('p_2_1eb'),fw_caption_set('Yu\nWell,',palette.yu)
 p_2_1eb = redir('p_2_1ec'),fw_caption_set('Yu\nI like League too.',palette.yu)
 p_2_1ec = redir('p_2_1ed'),fw_caption_set('Yu\nIn fact,',palette.yu)
-p_2_1ed = redir('p_2_1ee'),fw_caption_set('Yu\nI\'ve drawn some sketches of Jhin\'s Lotus Trap a few times in the past.',palette.yu)
+p_2_1ed = redir('p_2_1ee'),fw_caption_set('Yu\nI\'ve drawn some sketches of Jhin the Virtuoso a few times in the past.',palette.yu)
 p_2_1ee = redir('p_2_1ef'),fw_caption_set('Lily\nReally?',palette.lily)
 p_2_1ef = redir('p_2_1eg'),fw_caption_set('Lily\nThat sounds pretty cool.',palette.lily)
 p_2_1eg = fw_branch_to(('Ask Yu to show them to the group','p_2_1ga'),('Continue to ask Rustam about League','p_2_1ha'))
@@ -1054,10 +1069,32 @@ p_2_1eg = fw_branch_to(('Ask Yu to show them to the group','p_2_1ga'),('Continue
 p_2_1ga = redir('p_2_1gb'),fw_caption_set('Can we see?',palette.player,prefix='player_name')
 p_2_1gb = redir('p_2_1gc'),fw_caption_set('Yu\nWell...',palette.yu)
 p_2_1gc = redir('p_2_1gd'),fw_caption_set('Come on, your sketches are always fantastic.',palette.player,prefix='player_name')
-p_2_1gd = redir('p_2_1ge'),fw_caption_set('He concedes and cracks the sketchbook open, flipping through the pages until he stops on a stippled depiction of Jhin.',palette.narration)
+p_2_1gd = redir('p_2_1ge'),fw_caption_set('He concedes and cracks the sketchbook open, flipping through the pages until he stops on a stippled depiction of Jhin the Virtuoso.',palette.narration)
 p_2_1ge = redir('p_2_1gf'),fw_caption_set('Lily\nWow.',palette.lily,2)
 p_2_1gf = redir('p_2_1gg'),fw_caption_set('Lily\nThat\'s amazing.',palette.lily,2)
 p_2_1gg = redir('p_2_1gh'),fw_caption_set('Rustam\nNoice.',palette.rustam,2)
+p_2_1gh = redir('p_2_1gi'),fw_caption_set('Lily\nDo you want to be my partner for business?',palette.lily)
+p_2_1gi = redir('p_2_1gj'),fw_caption_set('Lily\nMy entrepreneurship idea is for an art gallery,',palette.lily)
+p_2_1gj = redir('p_2_1gk'),fw_caption_set('Lily\nAnd your work would be the perfect demo.',palette.lily)
+p_2_1gk = redir('p_2_1gl'),fw_caption_set('Rustam\nWait what?',palette.rustam)
+p_2_1gl = redir('p_2_1gm'),fw_caption_set('Rustam\nI thought we were pairing up.',palette.rustam)
+p_2_1gm = redir('p_2_1gn'),fw_caption_set('Lily\nI was going to ask you, but you were busy playing League last night.',palette.lily)
+p_2_1gn = redir('p_2_1go'),fw_caption_set('Rustam\nBut I\'m your senpai,',palette.rustam)
+p_2_1go = redir('p_2_1gp'),fw_caption_set('Rustam\nRight?',palette.rustam)
+p_2_1gp = redir('p_2_1gq')
+p_2_1gq = redir('p_2_1gr'),fw_caption_set('Ew.',palette.lily)
+p_2_1gr = redir('p_2_1gs'),fw_caption_set('Stop that.',palette.lily)
+p_2_1gs = redir('p_2_1gt'),fw_caption_set('Rustam\nNevar!',palette.rustam)
+p_2_1gt = redir('p_2_1gu'),fw_caption_set('Rustam\nI\'ll forever be yo-',palette.rustam),fw_timer_set(0.5,'p_2_1gv',False)
+p_2_1gu = redir('p_2_1gv'),fw_caption_set('Yu\nI\'ll do it.',palette.yu,2),fw_meter_add(0.05)
+p_2_1gv = redir('p_2_1gw')
+p_2_1gw = redir('p_2_1gx')
+p_2_1gx = redir('p_2_1gy')
+p_2_1gy = redir('p_2_1gz'),fw_caption_set('Rustam\nWhat?',palette.rustam)
+p_2_1gz = redir('p_2_1ga2'),fw_caption_set('Lily\nWoohoo!',palette.lily)
+p_2_1ga2 = redir('p_2_1gb2'),fw_caption_set('Really bruh?',palette.rustam)
+p_2_1gb2 = redir('p_2_1gc2'),fw_caption_set('Well,',palette.player,prefix='player_name')
+p_2_1gc2 = redir('???'),fw_caption_set('This is going to be interesting.',palette.player,prefix='player_name')
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
