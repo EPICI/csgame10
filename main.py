@@ -1022,7 +1022,7 @@ p_1_4ah = redir('p_2_1aa'),fw_caption_set('Mr.Faisal\nLet\'s run through attenda
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 2, scene 1: at cafe together
 
-p_2_1aa = redir('p_2_1ab'),fw_caption_set('The next day.',palette.narration)
+p_2_1aa = fw_background_set(img='cafe2.png',cxy=(width/2,height/2)),redir('p_2_1ab'),fw_caption_set('The next day.',palette.narration)
 p_2_1ab = redir('p_2_1ac'),fw_caption_set('The four of you are getting coffee as a group.',palette.narration)
 p_2_1ac = redir('p_2_1ad'),fw_caption_set('Yu is tucked in the corner of the booth, sketching while sneaking glances at Lily.',palette.narration)
 p_2_1ad = redir('p_2_1ae'),fw_caption_set('Lily is checking her phone.',palette.narration)
@@ -1096,7 +1096,7 @@ p_2_1gw = redir('p_2_1gx')
 p_2_1gx = redir('p_2_1gy')
 p_2_1gy = redir('p_2_1gz'),fw_caption_set('Rustam\nWhat?',palette.rustam)
 p_2_1gz = redir('p_2_1ga2'),fw_caption_set('Lily\nWoohoo!',palette.lily)
-p_2_1ga2 = redir('p_2_1gb2'),fw_caption_set('Really bruh?',palette.rustam)
+p_2_1ga2 = redir('p_2_1gb2'),fw_caption_set('Rustam\nReally bruh?',palette.rustam)
 p_2_1gb2 = redir('p_2_1gc2'),fw_caption_set('Well,',palette.player,prefix='player_name')
 p_2_1gc2 = redir('???'),fw_caption_set('This is going to be interesting.',palette.player,prefix='player_name')
 
