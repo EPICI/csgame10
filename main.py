@@ -637,9 +637,10 @@ def fw_branch_to(*others):
         clear_captions()
         timer_set(None)
         for index,params in enumerate(others):
-            text = params[0]
-            func = params[1]
-            buttons.append(choice_button(text,index,func))
+            if len(params)==2 or globals().get(params[2],False): # Easy predicate
+                text = params[0]
+                func = params[1]
+                buttons.append(choice_button(text,index,func))
     return ifw_branch_to
 redir = lambda x:fw_branch_to(('...',x))
 
@@ -1055,7 +1056,7 @@ p_2_1bj = redir('p_2_1bk')
 p_2_1bk = redir('p_2_1bl'),fw_caption_set('Yu\nIs that a compliment?',palette.yu)
 p_2_1bl = fw_branch_to(('Yes','p_2_1ea')),fw_timer_set(3,'p_2_1ea')
 
-p_2_1ca = redir('p_2_1cb'),fw_caption_set('Yu,',palette.player,prefix='player_name')
+p_2_1ca = fw_var_set('f_2_1c',1),redir('p_2_1cb'),fw_caption_set('Yu,',palette.player,prefix='player_name')
 p_2_1cb = redir('p_2_1cc'),fw_caption_set('How\'s your business project going?',palette.player,prefix='player_name')
 p_2_1cc = redir('p_2_1cd'),fw_caption_set('Yu\nAlright.',palette.yu)
 p_2_1cd = redir('p_2_1ce'),fw_caption_set('Okay...',palette.player,prefix='player_name')
@@ -1082,7 +1083,7 @@ p_2_1ec = redir('p_2_1ed'),fw_caption_set('Yu\nIn fact,',palette.yu)
 p_2_1ed = redir('p_2_1ee'),fw_caption_set('Yu\nI\'ve drawn some sketches of Jhin the Virtuoso a few times in the past.',palette.yu)
 p_2_1ee = redir('p_2_1ef'),fw_caption_set('Lily\nReally?',palette.lily)
 p_2_1ef = redir('p_2_1eg'),fw_caption_set('Lily\nThat sounds pretty cool.',palette.lily)
-p_2_1eg = fw_branch_to(('Ask Yu to show them to the group','p_2_1ga'),('Continue to ask Rustam about League','p_2_1ha'))
+p_2_1eg = fw_branch_to(('Ask Yu to show them to the group','p_2_1ga'),('Continue to ask Rustam about League','p_2_1ha','f_2_1c'))
 
 p_2_1ga = redir('p_2_1gb'),fw_caption_set('Can we see?',palette.player,prefix='player_name')
 p_2_1gb = redir('p_2_1gc'),fw_caption_set('Yu\nWell...',palette.yu)
