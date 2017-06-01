@@ -809,6 +809,18 @@ def fw_var_set(name,value):
         globals()[name]=value
     return ifw_var_set
 
+def fw_var_branch(name,to):
+    """
+    Branch to using value as key if it exists, or -1 if it doesn't exist
+    """
+    def ifw_var_branch():
+        v = globals().get(name,-1)
+        try:
+            funcify(to[v])()
+        except:
+            pass
+    return ifw_var_branch
+
 def drgb(istr):
     """
     Get RGB colour from hex string
@@ -1041,7 +1053,7 @@ p_2_1bh = redir('p_2_1bi'),fw_caption_set('Lily\nWhy can\'t you be a little less
 p_2_1bi = redir('p_2_1bj'),fw_caption_set('Lily\nWhy can\'t you be more like Yu?',palette.lily,3)
 p_2_1bj = redir('p_2_1bk')
 p_2_1bk = redir('p_2_1bl'),fw_caption_set('Yu\nIs that a compliment?',palette.yu)
-p_2_1bl = fw_branch_to(('Yes','p_2_1ea'),('No','p_2_1fa')),fw_timer_set(5,'p_2_1fa')
+p_2_1bl = fw_branch_to(('Yes','p_2_1ea')),fw_timer_set(3,'p_2_1ea')
 
 p_2_1ca = redir('p_2_1cb'),fw_caption_set('Yu,',palette.player,prefix='player_name')
 p_2_1cb = redir('p_2_1cc'),fw_caption_set('How\'s your business project going?',palette.player,prefix='player_name')
@@ -1058,7 +1070,11 @@ p_2_1cl = redir('p_2_1cm'),fw_caption_set('Lily\nShow us.',palette.lily)
 p_2_1cm = redir('p_2_1cn'),fw_caption_set('Rustam\nI second that.',palette.rustam)
 p_2_1cn = redir('p_2_1ed'),fw_caption_set('Yu\nWell...',palette.yu)
 
-p_2_1da = None # Original timeout
+p_2_1da = redir('p_2_1db')
+p_2_1db = redir('p_2_1dc'),fw_caption_set('So...',palette.player,prefix='player_name')
+p_2_1dc = redir('p_2_1dd'),fw_caption_set('Why are we here again?',palette.player,prefix='player_name')
+p_2_1dd = redir('p_2_1de'),fw_caption_set('Lily\nRight.',palette.lily)
+p_2_1de = redir('p_2_1ca'),fw_caption_set('Lily\Business project.',palette.lily)
 
 p_2_1ea = redir('p_2_1eb'),fw_caption_set('Yu\nWell,',palette.yu)
 p_2_1eb = redir('p_2_1ec'),fw_caption_set('Yu\nI like League too.',palette.yu)
@@ -1067,8 +1083,6 @@ p_2_1ed = redir('p_2_1ee'),fw_caption_set('Yu\nI\'ve drawn some sketches of Jhin
 p_2_1ee = redir('p_2_1ef'),fw_caption_set('Lily\nReally?',palette.lily)
 p_2_1ef = redir('p_2_1eg'),fw_caption_set('Lily\nThat sounds pretty cool.',palette.lily)
 p_2_1eg = fw_branch_to(('Ask Yu to show them to the group','p_2_1ga'),('Continue to ask Rustam about League','p_2_1ha'))
-
-p_2_1fa = None # No or timeout
 
 p_2_1ga = redir('p_2_1gb'),fw_caption_set('Can we see?',palette.player,prefix='player_name')
 p_2_1gb = redir('p_2_1gc'),fw_caption_set('Yu\nWell...',palette.yu)
