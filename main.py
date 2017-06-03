@@ -465,9 +465,9 @@ def draw_meter():
     # Text
     setcolor(rgb=0.02)
     setpolyclip()
-    setfont(None,-1,int(30*(0.5+ir)))
+    setfont(None,0,int(30*(0.5+ir)))
     drawimage(render('Hate'),(ix+40,40),xalign=0)
-    setfont(None,-1,int(30*(1.5-ir)))
+    setfont(None,0,int(30*(1.5-ir)))
     drawimage(render('Love'),(ix+40,height-40),xalign=0)
 
 def draw_timer():
@@ -503,7 +503,7 @@ def draw_timer():
             px,py = particle[0:2]
             drawimage(img_glow,(px+ox,py+oy))
     setcolor(rgb=0.02)
-    setfont(None,-1,int(itimer_size))
+    setfont(None,0,int(itimer_size))
     setpolyclip()
     timer_img = render(timer_str)
     drawimage(timer_img,(ox,oy),yalign=1.2)
@@ -970,7 +970,7 @@ p_1_1ab = fw_branch_to(('Talk to Yu','p_1_2aa'),('Talk to Lily','p_1_3aa')),fw_t
 p_1_2aa = redir('p_1_2ab'),fw_caption_set('Psst.',palette.player,prefix='player_name')
 p_1_2ab = redir('p_1_2ac'),fw_caption_set('Yu.',palette.player,prefix='player_name')
 p_1_2ac = redir('p_1_2ad'),fw_caption_set('What\'re you drawing?',palette.player,prefix='player_name')
-p_1_2ad = redir('p_1_2ae')
+p_1_2ad = redir('p_1_2ae'),fw_meter_add(0.1)
 p_1_2ae = redir('p_1_2af'),fw_caption_set('Yu\nNothing.',palette.yu)
 p_1_2af = redir('p_1_2ag'),fw_caption_set('You\'re drawing her again, aren\'t you?',palette.player,prefix='player_name')
 p_1_2ag = redir('p_1_2ah'),fw_caption_set('Yu\nIt\'s just a lilium.',palette.yu)
@@ -1020,7 +1020,7 @@ p_1_3bf = redir('p_1_3bg'),fw_caption_set('Rustam\nYou talkin\' about me mate?',
 p_1_3bg = redir('p_1_3bh')
 p_1_3bh = redir('p_1_3bi'),fw_caption_set('Lily\nWhatever.',palette.lily,2)
 p_1_3bi = redir('p_1_3bj'),fw_caption_set('Rustam\nJoin us in League sometime?',palette.rustam)
-p_1_3bj = redir('p_1_4aa'),fw_caption_set('Lily\nNo.',palette.lily,2)
+p_1_3bj = redir('p_1_4aa'),fw_caption_set('Lily\nNo.',palette.lily,2),fw_meter_add(0.1)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 4: business class
@@ -1054,11 +1054,11 @@ p_2_1bf = redir('p_2_1bg'),fw_caption_set('Lily\nThat\'s how you spent the whole
 p_2_1bg = redir('p_2_1bh'),fw_caption_set('Lily\nUgh! Why would anyone do that?',palette.lily,2)
 p_2_1bh = redir('p_2_1bi'),fw_caption_set('Lily\nWhy can\'t you be a little less social?',palette.lily,2)
 p_2_1bi = redir('p_2_1bj'),fw_caption_set('Lily\nWhy can\'t you be more like Yu?',palette.lily,3)
-p_2_1bj = redir('p_2_1bk')
+p_2_1bj = redir('p_2_1bk'),fw_meter_add(0.02)
 p_2_1bk = redir('p_2_1bl'),fw_caption_set('Yu\nIs that a compliment?',palette.yu)
-p_2_1bl = fw_branch_to(('Yes','p_2_1ea')),fw_timer_set(3,'p_2_1ea')
+p_2_1bl = fw_branch_to(('Yes',('p_2_1ea',fw_meter_add(0.02)))),fw_timer_set(3,'p_2_1ea')
 
-p_2_1ca = fw_var_set('f_2_1c',1),redir('p_2_1cb'),fw_caption_set('Yu,',palette.player,prefix='player_name')
+p_2_1ca = fw_var_set('f_2_1c',True),redir('p_2_1cb'),fw_caption_set('Yu,',palette.player,prefix='player_name')
 p_2_1cb = redir('p_2_1cc'),fw_caption_set('How\'s your business project going?',palette.player,prefix='player_name')
 p_2_1cc = redir('p_2_1cd'),fw_caption_set('Yu\nAlright.',palette.yu)
 p_2_1cd = redir('p_2_1ce'),fw_caption_set('Okay...',palette.player,prefix='player_name')
@@ -1107,7 +1107,7 @@ p_2_1gq = redir('p_2_1gr'),fw_caption_set('Lily\nEw.',palette.lily)
 p_2_1gr = redir('p_2_1gs'),fw_caption_set('Lily\nStop that.',palette.lily)
 p_2_1gs = redir('p_2_1gt'),fw_caption_set('Rustam\nNevar!',palette.rustam)
 p_2_1gt = redir('p_2_1gu'),fw_caption_set('Rustam\nI\'ll forever be yo-',palette.rustam),fw_timer_set(0.5,'p_2_1gu',False)
-p_2_1gu = redir('p_2_1gv'),fw_caption_set('Yu\nI\'ll do it.',palette.yu,2),fw_meter_add(0.05)
+p_2_1gu = redir('p_2_1gv'),fw_caption_set('Yu\nI\'ll do it.',palette.yu,2),fw_meter_add(0.25)
 p_2_1gv = redir('p_2_1gw')
 p_2_1gw = redir('p_2_1gx')
 p_2_1gx = redir('p_2_1gy')
@@ -1117,7 +1117,7 @@ p_2_1ga2 = redir('p_2_1gb2'),fw_caption_set('Rustam\nReally bruh?',palette.rusta
 p_2_1gb2 = redir('p_2_1gc2'),fw_caption_set('Well,',palette.player,prefix='player_name')
 p_2_1gc2 = redir('p_2_2aa'),fw_caption_set('This is going to be interesting.',palette.player,prefix='player_name')
 
-p_2_1ha = redir('p_2_1hb'),fw_caption_set('What even is there to do at 4 AM?',palette.player,prefix='player_name')
+p_2_1ha = redir('p_2_1hb'),fw_caption_set('What even is there to do at so late at night?',palette.player,prefix='player_name')
 p_2_1hb = redir('p_2_1hc'),fw_caption_set('Rustam\nPlay League?',palette.rustam)
 p_2_1hc = redir('p_2_1hd'),fw_caption_set('Nevermind sleep, do you not get bored?',palette.player,prefix='player_name')
 p_2_1hd = redir('p_2_1he'),fw_caption_set('Rustam\nNew champion hype.',palette.rustam)
@@ -1127,10 +1127,10 @@ p_2_1hg = redir('p_2_1hh'),fw_caption_set('What is it now?',palette.player,prefi
 p_2_1hh = redir('p_2_1hi'),fw_caption_set('Rustam\nXayah and Rakan.',palette.rustam)
 p_2_1hi = redir('p_2_1hj'),fw_caption_set('Rustam\nBirds.',palette.rustam)
 p_2_1hj = redir('p_2_1hk'),fw_caption_set('Rustam\nLovers.',palette.rustam)
-p_2_1hk = redir('p_2_1hl'),fw_caption_set('You glance at Yu’s open sketchbook and see that he’s already drawing them.',palette.narration)
+p_2_1hk = redir('p_2_1hl'),fw_caption_set('You glance at Yu\'s open sketchbook and see that he\'s already drawing them.',palette.narration)
 p_2_1hl = redir('p_2_1hm'),fw_caption_set('Rustam\nEhe.',palette.rustam)
 p_2_1hm = redir('p_2_1hn'),fw_caption_set('Rustam\nThey\'re real fun to play.',palette.rustam)
-p_2_1hn = fw_branch_to(('Notify Yu','p_2_ia')),fw_timer_set(5,'p_2_ja')
+p_2_1hn = fw_branch_to(('Notify Yu','p_2_1ia')),fw_timer_set(5,'p_2_1ja')
 
 p_2_1ia = redir('p_2_1ib'),fw_caption_set('Hey Yu.',palette.player,prefix='player_name')
 p_2_1ib = redir('p_2_1ic')
@@ -1153,10 +1153,10 @@ p_2_1jk = redir('p_2_1jl'),fw_caption_set('So...',palette.player,prefix='player_
 p_2_1jl = redir('p_2_1jm'),fw_caption_set('Who\'s your partner?',palette.player,prefix='player_name')
 p_2_1jm = redir('p_2_1jn'),fw_caption_set('Rustam\nLily?',palette.rustam)
 p_2_1jn = redir('p_2_1jo')
-p_2_1jo = redir('p_2_1jp'),fw_caption_set('Lily\nYes.',palette.lily)
+p_2_1jo = redir('p_2_1jp'),fw_caption_set('Lily\nYes.',palette.lily),fw_meter_add(-0.05)
 p_2_1jp = redir('p_2_1jq'),fw_caption_set('And you, Yu?',palette.player,prefix='player_name')
 p_2_1jq = redir('p_2_1jr')
-p_2_1jr = redir('p_2_1js'),fw_caption_set('Yu\nI\'m with you I guess.',palette.yu)
+p_2_1jr = redir('p_2_1js'),fw_caption_set('Yu\nI\'m with you I guess.',palette.yu),fw_meter_condition('>',0.5,fw_meter_add(-0.35),fw_meter_add(-0.15))
 p_2_1js = redir('p_2_1jt')
 p_2_1jt = redir('p_2_2aa'),fw_caption_set('Lily\nYou should probably head home now.',palette.lily)
 
