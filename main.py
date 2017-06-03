@@ -232,7 +232,7 @@ class caption:
     def __init__(self,texts,colors=None,style=0,**kwargs):
         global width,height,linelength
         if 'prefix' in kwargs:texts=globals()[kwargs['prefix']]+'\n'+texts
-        self.size = size = 12000//(len(texts)+300)
+        self.size = size = 24000//(max(len(texts)-200,0)+800)
         sections = texts.split('\n')
         texts = []
         for sect in sections:texts+=autosplit(sect,size)
@@ -908,8 +908,8 @@ background_x = drift(0.003,width/2)
 background_y = drift(0.003,height/2)
 characters = {} # TODO make characters and reference them here
 mouse_x,mouse_y = mouse_xy = 0,0
-player_name = ''
-player_name_edit = True
+player_name = 'Player'
+player_name_edit = False
 
 # ======================================================================================================================================================
 #
@@ -934,7 +934,7 @@ player_name_edit = True
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Opening sequence
 
-p_intro_a = fw_branch_to(['Play','p_1_1aa'])
+p_intro_a = fw_background_set(img=('rgb',(0,0,0))),fw_branch_to(['Play',fw_validate_name('p_1_1aa')]),fw_var_set('player_name',''),fw_var_set('player_name_edit',True),fw_caption_set('Enter your name:\n<type something>',palette.narration)
 p_intro_ba = fw_background_set(img=('rgb',(0,0,0))),redir('p_intro_bb'),fw_caption_set('Whatever we are, I still remember the way we were',palette.narration,2)
 p_intro_bb = fw_background_set(img='gallery2.png',cxy=(width/2,height/2)),redir('p_intro_bc')
 p_intro_bc = redir('p_intro_bd'),fw_caption_set('Yu! What\'s wrong?',palette.player,prefix='player_name')
@@ -945,11 +945,13 @@ p_intro_bg = redir('p_intro_bh'),fw_caption_set('It\'s raining. Tonight is the w
 p_intro_bh = redir('p_intro_bi'),fw_caption_set('Perennial Requiem',palette.narration,2)
 p_intro_bi = redir('p_intro_bj'),fw_caption_set('A banquet is currently being held in his celebration at the Toronto Axolotl gallery.',palette.narration)
 p_intro_bj = redir('p_intro_bk'),fw_caption_set('Tonight is the night Yu had prepared for for many months.',palette.narration)
-p_intro_bk = redir('p_intro_bl'),fw_caption_set('Tonight was supposed to be the night he would see Lily, his high school sweetheart, for the first time in 5 years. He had prepared to confess his love and apologize for the conflict that happened many years ago.',palette.narration)
+p_intro_bk = redir('p_intro_bk2'),fw_caption_set('Tonight was supposed to be the night he would see Lily, his high school sweetheart, for the first time in 5 years.',palette.narration)
+p_intro_bk2 = redir('p_intro_bl'),fw_caption_set('He had prepared to confess his love and apologize for the conflict that happened many years ago.',palette.narration)
 p_intro_bl = redir('p_intro_bm'),fw_caption_set('That was the plan.',palette.narration)
 p_intro_bm = redir('p_intro_bn')
 p_intro_bn = redir('p_intro_bo'),fw_caption_set('Heartbroken, Yu sobs outside. He is your best friend having been in your class throughout high school. You want to help.',palette.narration)
-p_intro_bo = redir('p_intro_bp'),fw_caption_set('You think back to the time when you, Yu and Lily were all just students in business class. The two high school sweethearts were destined to be future partners.',palette.narration)
+p_intro_bo = redir('p_intro_bo2'),fw_caption_set('You think back to the time when you, Yu and Lily were all just students in business class.',palette.narration)
+p_intro_bo2 = redir('p_intro_bp'),fw_caption_set('The two high school sweethearts were destined to be future partners.',palette.narration)
 p_intro_bp = redir('p_intro_bq'),fw_caption_set('Until that fateful day...',palette.narration)
 p_intro_bq = redir('p_intro_br'),fw_caption_set('That terrible misunderstanding...',palette.narration)
 p_intro_br = redir('p_intro_a'),fw_caption_set('If you only encouraged them more back then, would this have happened?',palette.narration)
@@ -960,7 +962,7 @@ p_intro = p_intro_ba
 # Part 1, scene 1: before business class
 
 p_1_1aa = fw_background_set(img='classroom2.png',cxy=(width/2,height/2)),redir('p_1_1ab'),fw_caption_set('Before class. You\'re bored and waiting for the teacher to arrive.',palette.narration)
-p_1_1ab = fw_branch_to(('Talk to Yu','p_1_2aa'),('Talk to Lily','p_1_3aa')),fw_timer_set(15,'p_1_4aa')
+p_1_1ab = fw_branch_to(('Talk to Yu','p_1_2aa'),('Talk to Lily','p_1_3aa')),fw_timer_set(15,'p_1_4aa'),fw_meter_status(True)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 2: talking with Yu before class
@@ -1101,8 +1103,8 @@ p_2_1gm = redir('p_2_1gn'),fw_caption_set('Lily\nI was going to ask you, but you
 p_2_1gn = redir('p_2_1go'),fw_caption_set('Rustam\nBut I\'m your senpai,',palette.rustam)
 p_2_1go = redir('p_2_1gp'),fw_caption_set('Rustam\nRight?',palette.rustam)
 p_2_1gp = redir('p_2_1gq')
-p_2_1gq = redir('p_2_1gr'),fw_caption_set('Ew.',palette.lily)
-p_2_1gr = redir('p_2_1gs'),fw_caption_set('Stop that.',palette.lily)
+p_2_1gq = redir('p_2_1gr'),fw_caption_set('Lily\nEw.',palette.lily)
+p_2_1gr = redir('p_2_1gs'),fw_caption_set('Lily\nStop that.',palette.lily)
 p_2_1gs = redir('p_2_1gt'),fw_caption_set('Rustam\nNevar!',palette.rustam)
 p_2_1gt = redir('p_2_1gu'),fw_caption_set('Rustam\nI\'ll forever be yo-',palette.rustam),fw_timer_set(0.5,'p_2_1gu',False)
 p_2_1gu = redir('p_2_1gv'),fw_caption_set('Yu\nI\'ll do it.',palette.yu,2),fw_meter_add(0.05)
@@ -1119,7 +1121,7 @@ p_2_1ha = None # More LoL talk
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
-funcify((fw_background_set(img=('rgb',(0,0,0))),redir(fw_validate_name(p_intro)),fw_caption_set('Enter a name\n ',palette.narration)))()
+funcify(p_intro)()
 
 # ======================================================================================================================================================
 #
