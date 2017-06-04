@@ -1316,7 +1316,7 @@ p_4_2dc = redir('p_4_2dd'),fw_caption_set('Disregard what she\'s saying.',palett
 p_4_2dd = redir('p_4_2de'),fw_caption_set('If you want to be with her,',palette.player,prefix='player_name')
 p_4_2de = redir('p_4_2df'),fw_caption_set('You go to U of T too.',palette.player,prefix='player_name')
 p_4_2df = redir('p_4_2dg'),fw_caption_set('Yu\nYou a time traveller or something like that?',palette.yu)
-p_4_2dg = redir('p_end_ba'),fw_caption_set('I\'ll go with "something like that".',palette.player,prefix='player_name')
+p_4_2dg = redir(fw_meter_condition('>',0.5,'p_end_ba','p_end_da')),fw_caption_set('I\'ll go with "something like that".',palette.player,prefix='player_name')
 
 p_4_2ea = redir('p_4_2eb'),fw_caption_set('Yeah.',palette.player,prefix='player_name')
 p_4_2eb = redir('p_4_2ec'),fw_caption_set('It\'s not like they\'ll claim it as their own.',palette.player,prefix='player_name')
@@ -1335,6 +1335,8 @@ p_end_aa = None
 p_end_ba = None
 
 p_end_ca = None
+
+p_end_da = None
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
