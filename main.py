@@ -29,6 +29,11 @@ framerate(fps)
 width = 1280
 height = 720
 resize(width,height)
+# Set font
+try:
+    setfont('Verdana',-1,-1)
+except:
+    print('Unable to change font')
 
 # Override image loading and bundle with unload
 oloadimage = loadimage
@@ -232,7 +237,7 @@ class caption:
     def __init__(self,texts,colors=None,style=0,**kwargs):
         global width,height,linelength
         if 'prefix' in kwargs:texts=globals()[kwargs['prefix']]+'\n'+texts
-        self.size = size = 24000//(max(len(texts)-200,0)+800)
+        self.size = size = 20000//(max(len(texts)-200,0)+800)
         sections = texts.split('\n')
         texts = []
         for sect in sections:texts+=autosplit(sect,size)
@@ -683,13 +688,11 @@ def fw_meter_condition(oper,value,if_true,if_false):
     """
     global comparators,love_meter
     comp = comparators[oper]
-    if not if_true:if_true = lambda:None
-    if not if_false:if_false = lambda:None
     def ifw_meter_condition():
         if comp(love_meter.target,value):
-            if_true()
+            funcify(if_true)()
         else:
-            if_false()
+            funcify(if_false)()
     return ifw_meter_condition
 
 def timer_set(seconds,func=None,visible=True):
@@ -855,6 +858,12 @@ def fw_validate_name(func):
             funcify(func)()
     return ifw_validate_name
 
+def fw_ending(number):
+    """
+    Ending
+    """
+    pass
+
 # ======================================================================================================================================================
 #
 # Initialize globals
@@ -937,7 +946,8 @@ p_intro_a = fw_background_set(img=('rgb',(0,0,0))),fw_branch_to(['Play',fw_valid
 p_intro_ba = fw_background_set(img=('rgb',(0,0,0))),redir('p_intro_bb'),fw_caption_set('Whatever we are, I still remember the way we were',palette.narration,2)
 p_intro_bb = fw_background_set(img='gallery2.png',cxy=(width/2,height/2)),redir('p_intro_bc')
 p_intro_bc = redir('p_intro_bd'),fw_caption_set('Yu! What\'s wrong?',palette.player,prefix='player_name')
-p_intro_bd = redir('p_intro_be'),fw_caption_set('Yu\nI lost her. It\'s too late now.',palette.yu)
+p_intro_bd = redir('p_intro_bd2'),fw_caption_set('Yu\nI\'ve lost her.',palette.yu)
+p_intro_bd2 = redir('p_intro_be'),fw_caption_set('Yu\nIt\'s too late now',palette.yu)
 p_intro_be = redir('p_intro_bf'),fw_caption_set('Wait, what do you mean, who?',palette.player,prefix='player_name')
 p_intro_bf = redir('p_intro_bg'),fw_caption_set('Yu\nLily.',palette.yu)
 p_intro_bg = redir('p_intro_bh'),fw_caption_set('It\'s raining. Tonight is the world premiere of Yu\'s first major painting:',palette.narration)
@@ -947,7 +957,7 @@ p_intro_bj = redir('p_intro_bk'),fw_caption_set('Tonight is the night Yu had pre
 p_intro_bk = redir('p_intro_bk2'),fw_caption_set('Tonight was supposed to be the night he would see Lily, his high school sweetheart, for the first time in 5 years.',palette.narration)
 p_intro_bk2 = redir('p_intro_bl'),fw_caption_set('He had prepared to confess his love and apologize for the conflict that happened many years ago.',palette.narration)
 p_intro_bl = redir('p_intro_bm'),fw_caption_set('That was the plan.',palette.narration)
-p_intro_bm = redir('p_intro_bn')
+p_intro_bm = redir('p_intro_bn'),fw_caption_set('Lily\'s fiance walks in and kisses her on the cheek.',palette.narration)
 p_intro_bn = redir('p_intro_bo'),fw_caption_set('Heartbroken, Yu sobs outside. He is your best friend having been in your class throughout high school. You want to help.',palette.narration)
 p_intro_bo = redir('p_intro_bo2'),fw_caption_set('You think back to the time when you, Yu and Lily were all just students in business class.',palette.narration)
 p_intro_bo2 = redir('p_intro_bp'),fw_caption_set('The two high school sweethearts were destined to be future partners.',palette.narration)
@@ -1062,7 +1072,7 @@ p_2_1cb = redir('p_2_1cc'),fw_caption_set('How\'s your business project going?',
 p_2_1cc = redir('p_2_1cd'),fw_caption_set('Yu\nAlright.',palette.yu)
 p_2_1cd = redir('p_2_1ce'),fw_caption_set('Okay...',palette.player,prefix='player_name')
 p_2_1ce = redir('p_2_1cf'),fw_caption_set('Who are you paired up with?',palette.player,prefix='player_name')
-p_2_1cf = redir('p_2_1cg'),fw_caption_set('Yu\nNoone yet.',palette.yu)
+p_2_1cf = redir('p_2_1cg'),fw_caption_set('Yu\nNo-one yet.',palette.yu)
 p_2_1cg = redir('p_2_1ch'),fw_caption_set('Yu glances at Lily.',palette.narration)
 p_2_1ch = redir('p_2_1ci'),fw_caption_set('She\'s looking at his sketchbook.',palette.narration)
 p_2_1ci = redir('p_2_1cj'),fw_caption_set('Lily\nWow, that\'s cool.',palette.lily)
@@ -1099,12 +1109,12 @@ p_2_1gj = redir('p_2_1gk'),fw_caption_set('Lily\nAnd your work would be the perf
 p_2_1gk = redir('p_2_1gl'),fw_caption_set('Rustam\nWait what?',palette.rustam)
 p_2_1gl = redir('p_2_1gm'),fw_caption_set('Rustam\nI thought we were pairing up.',palette.rustam)
 p_2_1gm = redir('p_2_1gn'),fw_caption_set('Lily\nI was going to ask you, but you were busy playing League last night.',palette.lily)
-p_2_1gn = redir('p_2_1go'),fw_caption_set('Rustam\nBut I\'m your senpai,',palette.rustam)
+p_2_1gn = redir('p_2_1go'),fw_caption_set('Rustam\nBut I\'m your love,',palette.rustam)
 p_2_1go = redir('p_2_1gp'),fw_caption_set('Rustam\nRight?',palette.rustam)
 p_2_1gp = redir('p_2_1gq')
 p_2_1gq = redir('p_2_1gr'),fw_caption_set('Lily\nEw.',palette.lily)
 p_2_1gr = redir('p_2_1gs'),fw_caption_set('Lily\nStop that.',palette.lily)
-p_2_1gs = redir('p_2_1gt'),fw_caption_set('Rustam\nNevar!',palette.rustam)
+p_2_1gs = redir('p_2_1gt'),fw_caption_set('Rustam\nNever!',palette.rustam)
 p_2_1gt = redir('p_2_1gu'),fw_caption_set('Rustam\nI\'ll forever be yo-',palette.rustam),fw_timer_set(0.5,'p_2_1gu',False)
 p_2_1gu = redir('p_2_1gv'),fw_caption_set('Yu\nI\'ll do it.',palette.yu,2),fw_meter_add(0.25)
 p_2_1gv = redir('p_2_1gw')
@@ -1215,7 +1225,7 @@ p_2_2ha = redir('p_2_2hb'),fw_caption_set('One game won\'t hurt.',palette.player
 p_2_2hb = redir(('p_3_1aa',fw_meter_add(0.05))),fw_caption_set('This should keep him off Lily for a while. Maybe she\'ll get annoyed and break up.',palette.narration)
 
 p_2_2ia = redir('p_2_2ib'),fw_caption_set('Nah mate, I\'m busy.',palette.player,prefix='player_name')
-p_2_2ib = redir(('p_2_2ib',fw_meter_add(-0.05))),fw_caption_set('Rustam\nI\'ll go bug Lily then.',palette.rustam)
+p_2_2ib = redir(('p_3_1aa',fw_meter_add(-0.05))),fw_caption_set('Rustam\nI\'ll go bug Lily then.',palette.rustam)
 
 p_2_2ja = redir('p_2_2jb'),fw_caption_set('Shouldn\'t we be doing our business project?',palette.player,prefix='player_name')
 p_2_2jb = redir('p_2_2jc'),fw_caption_set('Rustam\nI wanted to have some fun first.',palette.rustam)
@@ -1330,11 +1340,31 @@ p_4_2fc = redir('p_end_ca'),fw_caption_set('Share it in a way that gets you cred
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Endings
 
-p_end_aa = None
+p_end_aa = redir('p_end_aa2'),fw_caption_set('Yu published the painting for all to see.',palette.narration)
+p_end_aa2 = redir('p_end_ab'),fw_caption_set('Lily was ecstatic when she saw it.',palette.narration)
+p_end_ab = redir('p_end_ac'),fw_caption_set('They would be together right now,',palette.narration)
+p_end_ac = redir('p_end_ad'),fw_caption_set('except they went to different universities.',palette.narration)
+p_end_ad = redir('p_end_ae'),fw_caption_set('Lily went to University of Toronto,',palette.narration)
+p_end_ae = redir('p_end_af'),fw_caption_set('And Yu went to University of Waterloo.',palette.narration)
+p_end_af = redir('p_end_ag'),fw_caption_set('They won\'t meet again,',palette.narration)
+p_end_ag = redir('p_end_ah'),fw_caption_set('Until that day,',palette.narration)
+p_end_ah = redir('p_end_ai'),fw_caption_set('At the Toronto Axolotl Gallery.',palette.narration)
+p_end_ai = fw_ending(1)
 
-p_end_ba = None
+p_end_ba = redir('p_end_bb'),fw_caption_set('Yu and Lily both went to University of Toronto.',palette.narration)
+p_end_bb = redir('p_end_bc'),fw_caption_set('They lived those 4 years of their lives together,',palette.narration)
+p_end_bc = redir('p_end_bd'),fw_caption_set('And married soon after getting their baccalaureates.',palette.narration)
+p_end_bd = fw_ending(2)
 
-p_end_ca = None
+p_end_ca = redir('p_end_cb'),fw_caption_set('Lily never confessed her love to Yu,',palette.narration)
+p_end_cb = redir('p_end_cc'),fw_caption_set('And Yu never confessed his love to Lily,',palette.narration)
+p_end_cc = redir('p_end_cd'),fw_caption_set('Because they went to different universities.',palette.narration)
+p_end_cd = redir('p_end_ce'),fw_caption_set('Yu went to University of Waterloo,',palette.narration)
+p_end_ce = redir('p_end_cf'),fw_caption_set('And Lily went to University of Toronto.',palette.narration)
+p_end_cf = redir('p_end_cg'),fw_caption_set('They\'re apart enough now,',palette.narration)
+p_end_cg = redir('p_end_ch'),fw_caption_set('That when they meet again,',palette.narration)
+p_end_ch = redir('p_end_ci'),fw_caption_set('At the Toronto Axolotl gallery',palette.narration)
+p_end_ci = fw_ending(3)
 
 p_end_da = None
 
