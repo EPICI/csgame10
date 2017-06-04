@@ -967,7 +967,7 @@ p_1_1ab = fw_branch_to(('Talk to Yu','p_1_2aa'),('Talk to Lily','p_1_3aa')),fw_t
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 2: talking with Yu before class
 
-p_1_2aa = redir('p_1_2ab'),fw_caption_set('Psst.',palette.player,prefix='player_name')
+p_1_2aa = redir('p_1_2ab'),fw_caption_set('Psst.',palette.player,prefix='player_name'),fw_var_set('f_1_2a',0)
 p_1_2ab = redir('p_1_2ac'),fw_caption_set('Yu.',palette.player,prefix='player_name')
 p_1_2ac = redir('p_1_2ad'),fw_caption_set('What\'re you drawing?',palette.player,prefix='player_name')
 p_1_2ad = redir('p_1_2ae'),fw_meter_add(0.1)
@@ -1139,7 +1139,7 @@ p_2_1id = redir('p_2_1ie'),fw_caption_set('Can we see?',palette.player,prefix='p
 p_2_1ie = redir('p_2_1if')
 p_2_1if = redir('p_2_1ge')
 
-p_2_1ja = redir('p_2_1jb'),fw_caption_set('Lily\nIt\'s some brilliant marketing Riot has.',palette.lily)
+p_2_1ja = redir('p_2_1jb'),fw_caption_set('Lily\nIt\'s some brilliant marketing Riot has.',palette.lily),fw_var_set('f_2_1j',0)
 p_2_1jb = redir('p_2_1jc'),fw_caption_set('Lily\nMake animated shorts to get people excited,',palette.lily)
 p_2_1jc = redir('p_2_1jd'),fw_caption_set('Lily\nRelease it,',palette.lily)
 p_2_1jd = redir('p_2_1je'),fw_caption_set('Lily\nThen put it on the free rotation a couple of weeks later.',palette.lily)
@@ -1163,7 +1163,64 @@ p_2_1jt = redir('p_2_2aa'),fw_caption_set('Lily\nYou should probably head home n
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 2, scene 2: at home
 
-p_2_2aa = None
+p_2_2aa = redir('p_2_2ab'),fw_caption_set('Later that day, as you\'re researching for your business project, you get two calls at once.',palette.narration)
+p_2_2ab = redir('p_2_2ac'),fw_caption_set('From Yu and Rustam.',palette.narration)
+p_2_2ac = fw_branch_to(('Yu','p_2_2ba'),('Rustam','p_2_2ca')),fw_timer_set(15,'p_2_2da')
+
+p_2_2ba = redir('p_2_2bb'),fw_caption_set('Hey Yu.',palette.player,prefix='player_name')
+p_2_2bb = redir('p_2_2bc'),fw_caption_set('Yu\nHiya.',palette.yu)
+p_2_2bc = redir('p_2_2bd')
+p_2_2bd = redir(fw_var_branch('f_1_2a',('p_2_2g',fw_var_branch('f_2_1j',('p_2_2e','p_2_2f'))))),fw_caption_set('Any particular reason for calling?',palette.player,prefix='player_name')
+
+p_2_2ca = redir('p_2_2cb'),fw_caption_set('Ayy, you\'re not playing League for once.',palette.player,prefix='player_name')
+p_2_2cb = redir('p_2_2cc'),fw_caption_set('Rustam\nYeah, I was going to invite you.',palette.rustam)
+p_2_2cc = redir('p_2_2cd'),fw_caption_set('I don\'t even have League.',palette.player,prefix='player_name')
+p_2_2cd = redir('p_2_2ce'),fw_caption_set('Rustam\nI can wait for you to install it.',palette.rustam)
+p_2_2ce = fw_branch_to(('Accept','p_2_2ha'),('Decline',fw_var_branch('f_2_1j',('p_2_2ia','p_2_2ja'))))
+
+p_2_2da = redir('p_3_1aa'),fw_caption_set('They can wait.',palette.narration)
+
+p_2_2ea = redir('p_2_2eb'),fw_caption_set('Yu\nNo. I just like to idle on call. That okay?',palette.yu)
+p_2_2eb = redir('p_2_2ec'),fw_caption_set('Not even business?',palette.player,prefix='player_name')
+p_2_2ec = redir('p_2_2ed'),fw_caption_set('Yu\nIt\'s going good.',palette.yu)
+p_2_2ed = redir('p_2_2ee'),fw_caption_set('Yu\nLily works really fast.',palette.yu)
+p_2_2ee = redir('p_2_2ef'),fw_caption_set('She\'s probably just euphoric from getting to work with you.',palette.player,prefix='player_name')
+p_2_2ef = redir('p_2_2eg'),fw_caption_set('Yu\nHeh.',palette.yu),fw_meter_add(0.05)
+p_2_2eg = redir('p_3_1aa'),fw_caption_set('Yu\nMaybe.',palette.yu)
+
+p_2_2fa = redir('p_2_2fb'),fw_caption_set('Yu\nOur business project.',palette.yu)
+p_2_2fb = redir('p_2_2fc'),fw_caption_set('Right.',palette.player,prefix='player_name')
+p_2_2fc = redir('p_2_2fd'),fw_caption_set('The Artist Union.',palette.player,2,prefix='player_name')
+p_2_2fd = redir('p_3_1aa'),fw_caption_set('Yu\nLet\'s get started.',palette.yu),fw_meter_add(-0.05)
+
+p_2_2ga = redir('p_2_2gb'),fw_caption_set('Yu\nI finished the drawing.',palette.yu)
+p_2_2gb = redir('p_2_2gc'),fw_caption_set('The lilium?',palette.player,prefix='player_name')
+p_2_2gc = redir('p_2_2gd'),fw_caption_set('Yu\nYeah.',palette.yu)
+p_2_2gd = redir('p_2_2ge'),fw_caption_set('Yu\nSo I want to try commissioned art now.',palette.yu)
+p_2_2ge = redir('p_2_2gf'),fw_caption_set('You\'re asking if I want anything drawn?',palette.player,prefix='player_name')
+p_2_2gf = redir('p_2_2gg'),fw_caption_set('Yu\nMhm.',palette.yu)
+p_2_2gg = redir('p_2_2gh')
+p_2_2gh = redir('p_2_2gi'),fw_caption_set('Why don\'t you draw Lily?',palette.player,prefix='player_name')
+p_2_2gi = redir('p_2_2gj'),fw_caption_set('Not a lilium,',palette.player,prefix='player_name')
+p_2_2gj = redir('p_2_2gk'),fw_caption_set('Lily.',palette.player,2,prefix='player_name')
+p_2_2gk = redir('p_2_2gl'),fw_meter_add(0.05)
+p_2_2gl = redir('p_2_2gm'),fw_caption_set('Yu\nThanks for the excuse.',palette.yu)
+p_2_2gm = redir('p_2_2gn'),fw_caption_set('You need an excuse?',palette.player,prefix='player_name')
+p_2_2gn = redir('p_2_2go'),fw_caption_set('Yu\nKind of awkward drawing your friend,',palette.yu)
+p_2_2go = redir('p_2_2gp'),fw_caption_set('Yu\nSo yes.',palette.yu)
+p_2_2gp = redir('p_2_2gq'),fw_caption_set('Well,',palette.player,prefix='player_name')
+p_2_2gq = redir('p_2_2gr'),fw_caption_set('Be sure to share it when you\'re done,',palette.player,prefix='player_name')
+p_2_2gr = redir('p_3_1aa'),fw_caption_set('Alright?',palette.player,prefix='player_name')
+
+p_2_2ha = redir('p_2_2hb'),fw_caption_set('One game won\'t hurt.',palette.player,prefix='player_name')
+p_2_2hb = redir(('p_3_1aa',fw_meter_add(0.05))),fw_caption_set('This should keep him off Lily for a while. Maybe she\'ll get annoyed and break up.',palette.narration)
+
+p_2_2ia = redir('p_2_2ib'),fw_caption_set('Nah mate, I\'m busy.',palette.player,prefix='player_name')
+p_2_2ib = redir(('p_2_2ib',fw_meter_add(-0.05))),fw_caption_set('Rustam\nI\'ll go bug Lily then.',palette.rustam)
+
+p_2_2ja = redir('p_2_2jb'),fw_caption_set('Shouldn\'t we be doing our business project?',palette.player,prefix='player_name')
+p_2_2jb = redir('p_2_2jc'),fw_caption_set('Rustam\nI wanted to have some fun first.',palette.rustam)
+p_2_2jc = redir('p_3_1aa'),fw_caption_set('Rustam\nBut I guess we need to get started at some point, right?',palette.rustam),fw_meter_add(0.05)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
