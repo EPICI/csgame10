@@ -851,7 +851,6 @@ def fw_validate_name(func):
                 cap+=1
         if cap>=2:
             player_name = ''.join(ocs)
-            print(ocs,player_name)
             player_name_edit = False
             funcify(func)()
     return ifw_validate_name
@@ -1170,7 +1169,7 @@ p_2_2ac = fw_branch_to(('Yu','p_2_2ba'),('Rustam','p_2_2ca')),fw_timer_set(15,'p
 p_2_2ba = redir('p_2_2bb'),fw_caption_set('Hey Yu.',palette.player,prefix='player_name')
 p_2_2bb = redir('p_2_2bc'),fw_caption_set('Yu\nHiya.',palette.yu)
 p_2_2bc = redir('p_2_2bd')
-p_2_2bd = redir(fw_var_branch('f_1_2a',('p_2_2g',fw_var_branch('f_2_1j',('p_2_2e','p_2_2f'))))),fw_caption_set('Any particular reason for calling?',palette.player,prefix='player_name')
+p_2_2bd = redir(fw_var_branch('f_1_2a',('p_2_2ga',fw_var_branch('f_2_1j',('p_2_2ea','p_2_2fa'))))),fw_caption_set('Any particular reason for calling?',palette.player,prefix='player_name')
 
 p_2_2ca = redir('p_2_2cb'),fw_caption_set('Ayy, you\'re not playing League for once.',palette.player,prefix='player_name')
 p_2_2cb = redir('p_2_2cc'),fw_caption_set('Rustam\nYeah, I was going to invite you.',palette.rustam)
