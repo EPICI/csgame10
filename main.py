@@ -282,7 +282,7 @@ class caption:
         for text in self.texts:
             if text:
                 image = alpha(render(text),ialpha)
-                drawimage(image,(x,y))
+                drawimage(image,(270,y),xalign=0)
             y -= self.size
 
 class choice_button:
@@ -318,7 +318,7 @@ class choice_button:
         Pass flag hover to indicate if the mouse is hovering
         """
         global width,height,button_glow,button_particle_systems
-        setcolor(rgb=0.02)
+        setcolor(rgb=0.95)
         img_glow = button_glow[4 if hover else 0]
         particles = button_particle_systems[self.index]
         image = render(self.text)
@@ -331,7 +331,7 @@ class choice_button:
         iy = float(iy)
         left = ix-iwidth-40
         by = iy-20,iy+20
-        setcolor(rgb=0.95)
+        setcolor(rgb=0.05)
         setpolyclip([[width,by[0]],[width,by[1]],[left+10,by[1]],[left,iy],[left+10,by[0]]])
         fill()
         particles.step()
@@ -452,7 +452,7 @@ def draw_meter():
     love_meter_particle_system.step()
     particles = love_meter_particle_system.particles
     # Lower half
-    setcolor(rgb=0.95)
+    setcolor(rgb=0.05)
     img_glow = button_glow[0]
     setpolyclip([[ix-30,40],[ix,30],[ix+30,40],[ix+30,iy],[ix-30,iy]])
     fill()
@@ -460,7 +460,7 @@ def draw_meter():
         px,py = particle[0:2]
         drawimage(img_glow,(px,py+height/2))
     # Upper half
-    setcolor(rgb=0.95)
+    setcolor(rgb=0.05)
     img_glow = button_glow[3]
     setpolyclip([[ix-30,height-40],[ix,height-30],[ix+30,height-40],[ix+30,iy],[ix-30,iy]])
     fill()
@@ -468,7 +468,7 @@ def draw_meter():
         px,py = particle[0:2]
         drawimage(img_glow,(px,py+height/2))
     # Text
-    setcolor(rgb=0.02)
+    setcolor(rgb=0.95)
     setpolyclip()
     setfont(None,0,int(30*(0.5+ir)))
     drawimage(render('Hate'),(ix+40,40),xalign=0)
@@ -499,7 +499,7 @@ def draw_timer():
     itimer_size = float(timer_size)
     timer_radius = itimer_size*1.8
     if oy<height+timer_radius:
-        setcolor(rgb=0.95)
+        setcolor(rgb=0.05)
         setpolyclip([[ox+timer_radius*cos(i*pi/32),oy+timer_radius*sin(i*pi/32)] for i in range(64)])
         fill()
         img_glow = button_glow[2]
@@ -507,7 +507,7 @@ def draw_timer():
         for particle in timer_particle_system.particles:
             px,py = particle[0:2]
             drawimage(img_glow,(px+ox,py+oy))
-    setcolor(rgb=0.02)
+    setcolor(rgb=0.95)
     setfont(None,0,int(itimer_size))
     setpolyclip()
     timer_img = render(timer_str)
@@ -587,7 +587,7 @@ def autosplit(texts,size):
     """
     Automatically break up text, used by captions
     """
-    linelength=1600//size
+    linelength=1500//size
     result = []
     parts = texts.split(' ')[::-1]
     bl = len(texts)
@@ -713,7 +713,7 @@ def fw_timer_set(seconds,func=None,visible=True):
     Return a function to set the timer later
     """
     def ifw_timer_set():
-        timer_set(seconds,func,visible)
+        timer_set(seconds,(func,fw_meter_add(-0.02)),visible)
     return ifw_timer_set
 
 def fw_caption_set(*args,**kwargs):
@@ -925,20 +925,6 @@ player_name_edit = False
 #
 # ======================================================================================================================================================
 
-# Test menu items (not deleted because it could be a useful reference)
-##p_menu_1 = fw_exec_all(fw_branch_to(['...','p_menu_1a']),fw_caption_set('So basically'),)
-##p_menu_1a = fw_exec_all(fw_branch_to(['...','p_menu_1b']),fw_caption_set('This is how dialogue will work'))
-##p_menu_1b = fw_exec_all(fw_branch_to(['...','p_menu_1c']),fw_caption_set('We\'ll give each character\ntheir own colour\nor something like that',('hsv',(0.6,0.8,0.8))))
-##p_menu_1c = fw_branch_to(['1 -> 2','p_menu_2'],['1 -> 3','p_menu_3'],['1 -> 1','p_menu_1'])
-##p_menu_2 = fw_meter_condition('>',0.14,fw_exec_all(fw_branch_to(['2 -> 3','p_menu_3'],['2 -> 1','p_menu_1'],['2 -> 2','p_menu_2']),fw_meter_add(-0.13)),fw_branch_to(['uh oh','p_menu_2b']))
-##p_menu_2b = fw_exec_all(fw_branch_to(['to 2','p_menu_2'],['to 4','p_menu_4']),fw_caption_set('Love metred'),fw_meter_add(0.5))
-##p_menu_3 = fw_branch_to(['3 -> 1','p_menu_1'],['3 -> 2','p_menu_2'],['3 -> 3','p_menu_3'],['3 -> 4','p_menu_4'])
-##p_menu_4 = fw_exec_all(fw_branch_to(['4 -> 1','p_menu_1'],['4 -> 2','p_menu_2']),fw_timer_set(10,'p_menu_5'))
-##p_menu_5 = fw_branch_to(['5 -> 1','p_menu_1'],['5 -> 2','p_menu_2'],['5 -> 4','p_menu_4'])
-##p_menu_6 = fw_branch_to(['1 >>',p_menu_1],['2 >>',p_menu_2],['3 >>',p_menu_3],['4 >>',p_menu_4])
-##fw_branch_to(['Play',fw_exec_all(fw_meter_status(True),p_menu_6)])()
-# Story, paths, etc.
-
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Opening sequence
 
@@ -947,7 +933,7 @@ p_intro_ba = fw_background_set(img=('rgb',(0,0,0))),redir('p_intro_bb'),fw_capti
 p_intro_bb = fw_background_set(img='gallery2.png',cxy=(width/2,height/2)),redir('p_intro_bc')
 p_intro_bc = redir('p_intro_bd'),fw_caption_set('Yu! What\'s wrong?',palette.player,prefix='player_name')
 p_intro_bd = redir('p_intro_bd2'),fw_caption_set('Yu\nI\'ve lost her.',palette.yu)
-p_intro_bd2 = redir('p_intro_be'),fw_caption_set('Yu\nIt\'s too late now',palette.yu)
+p_intro_bd2 = redir('p_intro_be'),fw_caption_set('Yu\nIt\'s too late now.',palette.yu)
 p_intro_be = redir('p_intro_bf'),fw_caption_set('Wait, what do you mean, who?',palette.player,prefix='player_name')
 p_intro_bf = redir('p_intro_bg'),fw_caption_set('Yu\nLily.',palette.yu)
 p_intro_bg = redir('p_intro_bh'),fw_caption_set('It\'s raining. Tonight is the world premiere of Yu\'s first major painting:',palette.narration)
@@ -964,7 +950,6 @@ p_intro_bo2 = redir('p_intro_bp'),fw_caption_set('The two high school sweetheart
 p_intro_bp = redir('p_intro_bq'),fw_caption_set('Until that fateful day...',palette.narration)
 p_intro_bq = redir('p_intro_br'),fw_caption_set('That terrible misunderstanding...',palette.narration)
 p_intro_br = redir('p_intro_a'),fw_caption_set('If you only encouraged them more back then, would this have happened?',palette.narration)
-# Currently sets to the default, TODO read save file if present
 p_intro = p_intro_ba
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
