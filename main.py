@@ -1192,7 +1192,7 @@ p_2_2fb = redir('p_2_2fc'),fw_caption_set('Right.',palette.player,prefix='player
 p_2_2fc = redir('p_2_2fd'),fw_caption_set('The Artist Union.',palette.player,2,prefix='player_name')
 p_2_2fd = redir('p_3_1aa'),fw_caption_set('Yu\nLet\'s get started.',palette.yu),fw_meter_add(-0.05)
 
-p_2_2ga = redir('p_2_2gb'),fw_caption_set('Yu\nI finished the drawing.',palette.yu)
+p_2_2ga = redir('p_2_2gb'),fw_caption_set('Yu\nI finished the drawing.',palette.yu),fw_var_set('f_2_2g',0)
 p_2_2gb = redir('p_2_2gc'),fw_caption_set('The lilium?',palette.player,prefix='player_name')
 p_2_2gc = redir('p_2_2gd'),fw_caption_set('Yu\nYeah.',palette.yu)
 p_2_2gd = redir('p_2_2ge'),fw_caption_set('Yu\nSo I want to try commissioned art now.',palette.yu)
@@ -1220,6 +1220,38 @@ p_2_2ib = redir(('p_2_2ib',fw_meter_add(-0.05))),fw_caption_set('Rustam\nI\'ll g
 p_2_2ja = redir('p_2_2jb'),fw_caption_set('Shouldn\'t we be doing our business project?',palette.player,prefix='player_name')
 p_2_2jb = redir('p_2_2jc'),fw_caption_set('Rustam\nI wanted to have some fun first.',palette.rustam)
 p_2_2jc = redir('p_3_1aa'),fw_caption_set('Rustam\nBut I guess we need to get started at some point, right?',palette.rustam),fw_meter_add(0.05)
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Part 3, scene 1: after school
+
+p_3_1aa = redir(fw_meter_condition('>',0.7,fw_meter_condition('>=',0.9,'p_3_1ba','p_3_1ca'),'p_3_1da')),fw_caption_set('After school the next day...',palette.narration)
+
+p_3_1ba = redir('p_3_1bb')
+p_3_1bb = redir('p_3_1bc'),fw_caption_set('Lily\nHey Yu!',palette.lily)
+p_3_1bc = redir('p_3_1bd'),fw_caption_set('Lily\nWait for me!',palette.lily)
+p_3_1bd = redir('p_3_1be'),fw_caption_set('Yu\nHm?',palette.yu)
+p_3_1be = redir('p_3_1bf'),fw_caption_set('Lily\nSo, about our business project...',palette.lily)
+p_3_1bf = redir('p_3_1bg')
+p_3_1bg = redir('p_3_1bh'),fw_caption_set('Lily\nRustam,',palette.lily)
+p_3_1bh = redir('p_3_1bi'),fw_caption_set('Lily\nPlease go home now.',palette.lily)
+p_3_1bi = redir('p_3_1bj')
+p_3_1bj = redir('p_3_1bk'),fw_caption_set('Lily\nI said,',palette.lily)
+p_3_1bk = redir('p_3_1bl'),fw_caption_set('Lily\nGo home.',palette.lily)
+p_3_1bl = redir('p_4_1aa'),fw_caption_set('Lily\nLearn to interpret a signal.',palette.lily)
+
+p_3_1ca = redir('p_3_1cb'),fw_caption_set('Yu\nWhy don\'t we walk home together?',palette.yu)
+p_3_1cb = redir('p_3_1cc'),fw_caption_set('Lily\nHuh?',palette.lily)
+p_3_1cc = redir('p_3_1cd'),fw_caption_set('Yu\nIt gives us a chance to talk about our business project.',palette.yu)
+p_3_1cd = redir('p_3_1ce'),fw_caption_set('Lily\nOh sure.',palette.lily)
+p_3_1ce = redir('p_3_1cf'),fw_caption_set('Rustam\nWhat about me?',palette.rustam)
+p_3_1cf = redir('p_3_1cg'),fw_caption_set('Lily\nTag along if you want.',palette.lily)
+p_3_1cg = redir('p_3_1ch')
+p_3_1ch = redir('p_4_1aa'),fw_caption_set('Rustam\nOkay then.',palette.rustam)
+
+p_3_1da = redir('p_3_1db'),fw_caption_set('Rustam\nLily?',palette.rustam)
+p_3_1db = redir('p_3_1dc')
+p_3_1dc = redir('p_3_1dd'),fw_caption_set('Lily\nBye Yu.',palette.lily)
+p_3_1dd = redir('p_4_1aa'),fw_caption_set('Yu\nBye Lily.',palette.yu)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
