@@ -1224,7 +1224,7 @@ p_2_2jc = redir('p_3_1aa'),fw_caption_set('Rustam\nBut I guess we need to get st
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 3, scene 1: after school
 
-p_3_1aa = redir(fw_meter_condition('>',0.7,fw_meter_condition('>=',0.9,'p_3_1ba','p_3_1ca'),'p_3_1da')),fw_caption_set('After school the next day...',palette.narration)
+p_3_1aa = redir(fw_meter_condition('>',0.7,fw_meter_condition('>=',0.9,'p_3_1ba','p_3_1ca'),'p_3_1da')),fw_caption_set('After school the next day.',palette.narration)
 
 p_3_1ba = redir('p_3_1bb')
 p_3_1bb = redir('p_3_1bc'),fw_caption_set('Lily\nHey Yu!',palette.lily)
@@ -1237,12 +1237,12 @@ p_3_1bh = redir('p_3_1bi'),fw_caption_set('Lily\nPlease go home now.',palette.li
 p_3_1bi = redir('p_3_1bj')
 p_3_1bj = redir('p_3_1bk'),fw_caption_set('Lily\nI said,',palette.lily)
 p_3_1bk = redir('p_3_1bl'),fw_caption_set('Lily\nGo home.',palette.lily)
-p_3_1bl = redir('p_4_1aa'),fw_caption_set('Lily\nLearn to interpret a signal.',palette.lily)
+p_3_1bl = redir('p_4_1aa'),fw_caption_set('Lily\nLearn to interpret a signal.',palette.lily),fw_meter_add(0.05)
 
 p_3_1ca = redir('p_3_1cb'),fw_caption_set('Yu\nWhy don\'t we walk home together?',palette.yu)
 p_3_1cb = redir('p_3_1cc'),fw_caption_set('Lily\nHuh?',palette.lily)
 p_3_1cc = redir('p_3_1cd'),fw_caption_set('Yu\nIt gives us a chance to talk about our business project.',palette.yu)
-p_3_1cd = redir('p_3_1ce'),fw_caption_set('Lily\nOh sure.',palette.lily)
+p_3_1cd = redir('p_3_1ce'),fw_caption_set('Lily\nOh sure.',palette.lily),fw_meter_add(0.05)
 p_3_1ce = redir('p_3_1cf'),fw_caption_set('Rustam\nWhat about me?',palette.rustam)
 p_3_1cf = redir('p_3_1cg'),fw_caption_set('Lily\nTag along if you want.',palette.lily)
 p_3_1cg = redir('p_3_1ch')
@@ -1252,6 +1252,89 @@ p_3_1da = redir('p_3_1db'),fw_caption_set('Rustam\nLily?',palette.rustam)
 p_3_1db = redir('p_3_1dc')
 p_3_1dc = redir('p_3_1dd'),fw_caption_set('Lily\nBye Yu.',palette.lily)
 p_3_1dd = redir('p_4_1aa'),fw_caption_set('Yu\nBye Lily.',palette.yu)
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Part 4, scene 1: at lunch, talking to Lily
+
+p_4_1aa = redir('p_4_1ab'),fw_caption_set('A few days later, at lunch.',palette.narration)
+p_4_1ab = redir('p_4_1ac'),fw_caption_set('Hi Lily.',palette.player,prefix='player_name')
+p_4_1ac = redir('p_4_1ad'),fw_caption_set('Lily\nHey.',palette.lily)
+p_4_1ad = redir('p_4_1ae'),fw_caption_set('A few more days until university applications close.',palette.player,prefix='player_name')
+p_4_1ae = redir('p_4_1af'),fw_caption_set('Lily\nWhy do they have to all be at the same time?',palette.lily)
+p_4_1af = redir('p_4_1ag'),fw_caption_set('I guess they want to force you to choose.',palette.player,prefix='player_name')
+p_4_1ag = redir('p_4_1ah'),fw_caption_set('Lily\nI...',palette.lily)
+p_4_1ah = redir('p_4_1ai'),fw_caption_set('Lily\nStill don\'t know where I\'ll be going.',palette.lily)
+p_4_1ai = redir('p_4_1aj'),fw_caption_set('No idea?',palette.player,prefix='player_name')
+p_4_1aj = redir('p_4_1ak'),fw_caption_set('Lily\nWell,',palette.lily)
+p_4_1ak = redir('p_4_1al'),fw_caption_set('Lily\nI\'m pretty sure I\'ll be going to UWaterloo.',palette.lily)
+p_4_1al = redir(fw_meter_condition('>',0.6,'p_4_1ba','p_4_1ca')),fw_caption_set('Lily\nThey have a very promising business program.',palette.lily)
+
+p_4_1ba = redir('p_4_1bb'),fw_caption_set('Yu said he\'s going to U of T.',palette.player,prefix='player_name')
+p_4_1bb = redir('p_4_1bc'),fw_caption_set('Lily\nOh?',palette.lily)
+p_4_1bc = redir('p_4_1bd'),fw_caption_set('Lily\nWell,',palette.lily)
+p_4_1bd = redir('p_4_1be'),fw_caption_set('Lily\nI won\'t sacrifice my career to be with my friend.',palette.lily)
+p_4_1be = redir('p_4_2aa'),fw_caption_set('Fair enough.',palette.player,prefix='player_name')
+
+p_4_1ca = redir('p_4_1cb'),fw_caption_set('Yu\'s going to UWaterloo too.',palette.player,prefix='player_name')
+p_4_1cb = redir('p_4_1cc'),fw_caption_set('Lily\nWell,',palette.lily)
+p_4_1cc = redir('p_4_2aa'),fw_caption_set('Lily\nIsn\'t that convenient?',palette.lily)
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Part 4, scene 2: at lunch, talking to Yu
+
+p_4_2aa = redir('p_4_2ab'),fw_caption_set('Yu\nHoi!',palette.yu)
+p_4_2ab = redir('p_4_2ac'),fw_caption_set('Hi Yu.',palette.player,prefix='player_name')
+p_4_2ac = redir('p_4_2ad'),fw_caption_set('Have you been here this whole time?',palette.player,prefix='player_name')
+p_4_2ad = redir('p_4_2ae'),fw_caption_set('Yu\nYeah.',palette.yu)
+p_4_2ae = redir('p_4_2af'),fw_caption_set('Yu\nWhy, is that a problem?',palette.yu)
+p_4_2af = redir('p_4_2ag'),fw_caption_set('Of course not.',palette.player,prefix='player_name')
+p_4_2ag = redir('p_4_2ah'),fw_caption_set('You hang out wherever you want.',palette.player,prefix='player_name')
+p_4_2ah = fw_branch_to(('Art',fw_var_branch('f_2_2g',('p_4_2ba','p_4_2ca'))),('University','p_4_2da','f2'))
+
+p_4_2ba = redir('p_4_2bb'),fw_caption_set('Did you finish the painting?',palette.player,prefix='player_name')
+p_4_2bb = redir('p_4_2bc'),fw_caption_set('The one of Lily, I mean.',palette.player,prefix='player_name')
+p_4_2bc = redir('p_4_2bd'),fw_caption_set('Yu\nActually, yes.',palette.yu)
+p_4_2bd = redir('p_4_2be'),fw_caption_set('And Lily doesn\'t know?',palette.player,prefix='player_name')
+p_4_2be = redir('p_4_2bf'),fw_caption_set('Yu\nYup.',palette.yu)
+p_4_2bf = redir('p_4_2bg'),fw_caption_set('Post it on your blog or something.',palette.player,prefix='player_name')
+p_4_2bg = redir('p_4_2bh'),fw_caption_set('Yu\nWill she see it?',palette.yu)
+p_4_2bh = redir('p_4_2bi'),fw_caption_set('At some point, maybe.',palette.player,prefix='player_name')
+p_4_2bi = redir('p_4_2bj'),fw_caption_set('In any case, you shouldn\'t let that stop you.',palette.player,prefix='player_name')
+p_4_2bj = redir('p_4_2bk'),fw_caption_set('Yu\nAlright.',palette.yu)
+p_4_2bk = redir('p_end_aa'),fw_caption_set('Yu\nI\'ll do it later today.',palette.yu)
+
+p_4_2ca = redir('p_4_2cb'),fw_caption_set('How\'s your art going?',palette.player,prefix='player_name')
+p_4_2cb = redir('p_4_2cc'),fw_caption_set('Yu\nJust finished a painting of Xayah and Rakan.',palette.yu)
+p_4_2cc = redir('p_4_2cd'),fw_caption_set('Oh, cool.',palette.player,prefix='player_name')
+p_4_2cd = redir('p_4_2ce'),fw_caption_set('Yu\nThe school wants to steal it for their art gallery.',palette.yu)
+p_4_2ce = redir('p_4_2cf'),fw_caption_set('Yu\nShould I let them?',palette.yu)
+p_4_2cf = fw_branch_to(('Yes','p_4_2ea'),('No','p_4_2fa'))
+
+p_4_2da = redir('p_4_2db'),fw_caption_set('Listen.',palette.player,prefix='player_name')
+p_4_2db = redir('p_4_2dc'),fw_caption_set('Lily\'s going to go to U of T.',palette.player,prefix='player_name')
+p_4_2dc = redir('p_4_2dd'),fw_caption_set('Disregard what she\'s saying.',palette.player,prefix='player_name')
+p_4_2dd = redir('p_4_2de'),fw_caption_set('If you want to be with her,',palette.player,prefix='player_name')
+p_4_2de = redir('p_4_2df'),fw_caption_set('You go to U of T too.',palette.player,prefix='player_name')
+p_4_2df = redir('p_4_2dg'),fw_caption_set('Yu\nYou a time traveller or something like that?',palette.yu)
+p_4_2dg = redir('p_end_ba'),fw_caption_set('I\'ll go with "something like that".',palette.player,prefix='player_name')
+
+p_4_2ea = redir('p_4_2eb'),fw_caption_set('Yeah.',palette.player,prefix='player_name')
+p_4_2eb = redir('p_4_2ec'),fw_caption_set('It\'s not like they\'ll claim it as their own.',palette.player,prefix='player_name')
+p_4_2ec = redir('p_4_2ed'),fw_caption_set('More people will see it.',palette.player,prefix='player_name')
+p_4_2ed = redir('p_end_ca'),fw_caption_set('Works for you too.',palette.player,prefix='player_name')
+
+p_4_2fa = redir('p_4_2fb'),fw_caption_set('No.',palette.player,prefix='player_name')
+p_4_2fb = redir('p_4_2fc'),fw_caption_set('It\'s your work.',palette.player,prefix='player_name')
+p_4_2fc = redir('p_end_ca'),fw_caption_set('Share it in a way that gets you credit.',palette.player,prefix='player_name')
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------
+# Endings
+
+p_end_aa = None
+
+p_end_ba = None
+
+p_end_ca = None
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
