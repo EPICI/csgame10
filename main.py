@@ -1062,8 +1062,8 @@ p_1_4ah = redir('p_2_1aa'),fw_caption_set('Mr.Faisal\nLet\'s run through attenda
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 2, scene 1: at cafe together
 
-qscroll = lambda x:(fw_character_set('yu',txy=(width*(x-0.3),height/2)),fw_character_set('lily',txy=(width*x,height/2)),fw_character_set('rustam',calpha=1,txy=(width*(x+0.3),height/2)))
-qscroll = lambda x:qscroll(0.5-0.3*x)
+qscroll2 = lambda x:(fw_character_set('yu',txy=(width*(x-0.3),height/2)),fw_character_set('lily',txy=(width*x,height/2)),fw_character_set('rustam',calpha=1,txy=(width*(x+0.3),height/2)))
+qscroll = lambda x:qscroll2(0.5-0.3*x)
 
 p_2_1aa = fw_background_set(img='cafe2.png',cxy=(width/2,height/2)),fw_character_set('teacher',calpha=0),fw_character_set('yu',calpha=1,txy=(width*0.2,height/2)),fw_character_set('lily',calpha=1,txy=(width*0.5,height/2)),fw_character_set('rustam',calpha=1,txy=(width*0.8,height/2)),redir('p_2_1ab'),fw_caption_set('The next day.',palette.narration)
 p_2_1ab = redir('p_2_1af'),fw_caption_set('The four of you are getting coffee as a group.',palette.narration)
@@ -1277,8 +1277,8 @@ p_2_2jh = redir('p_3_1aa'),fw_caption_set('At least this will give Yu and Lily s
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 3, scene 1: after school
 
-qscroll = lambda x:(fw_character_set('yu',txy=(width*(x+0.3),height/2)),fw_character_set('lily',txy=(width*x,height/2)),fw_character_set('rustam',calpha=1,txy=(width*(x-0.3),height/2)))
-qscroll = lambda x:qscroll(0.5-0.3*x)
+qscroll1 = lambda x:(fw_character_set('yu',txy=(width*(x+0.3),height/2)),fw_character_set('lily',txy=(width*x,height/2)),fw_character_set('rustam',calpha=1,txy=(width*(x-0.3),height/2)))
+qscroll = lambda x:qscroll1(0.5-0.3*x)
 
 p_3_1aa = fw_meter_condition('>',0.7,fw_meter_condition('>=',0.9,'p_3_1ba2','p_3_1ca2'),'p_3_1da2'),fw_caption_set('After school the next day.',palette.narration)
 
@@ -1332,8 +1332,8 @@ p_3_1dd = redir('p_4_1aa'),fw_caption_set('Yu\nBye Lily.',palette.yu),fw_charact
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 4, scene 1: unified university chat
 
-qscroll = lambda x:(fw_character_set('yu',txy=(width*(x-0.2),height/2)),fw_character_set('lily',txy=(width*(x+0.2),height/2))
-qscroll = lambda x:qscroll(0.5-0.2*x)
+qscroll3 = lambda x:(fw_character_set('yu',txy=(width*(x-0.2),height/2)),fw_character_set('lily',txy=(width*(x+0.2),height/2)))
+qscroll = lambda x:qscroll3(0.5-0.2*x)
 
 p_4_1aa = fw_background_set(img='hallway2.png',cxy=(width/2,height/2)),fw_character_set('yu',calpha=ashow,),fw_character_set('lily',calpha=ashow),fw_character_set('rustam',calpha=ahide),qscroll(0),redir('p_4_1ab'),fw_caption_set('A few days before university applications close.',palette.narration)
 p_4_1ab = redir('p_4_1ac'),fw_caption_set('You, Yu and Lily managed to meet briefly outside of class to chat.',palette.narration)
