@@ -450,7 +450,7 @@ def draw_meter():
     love_meter.step()
     ix = float(love_meter_x)
     if ix<-160:return
-    iy = 1-float(love_meter)
+    iy = float(love_meter)
     if iy<0:iy=0
     if iy>1:iy=1
     ir = iy
@@ -466,20 +466,14 @@ def draw_meter():
         px,py = particle[0:2]
         drawimage(img_glow,(px,py+height/2))
     # Upper half
-    setcolor(rgb=0.05)
-    img_glow = button_glow[3]
+    setcolor(rgba=0.1)
     setpolyclip([[ix-30,height-40],[ix,height-30],[ix+30,height-40],[ix+30,iy],[ix-30,iy]])
     fill()
-    for particle in particles:
-        px,py = particle[0:2]
-        drawimage(img_glow,(px,py+height/2))
     # Text
     setcolor(rgb=0.95)
     setpolyclip()
-    setfont(None,0,int(30*(0.5+ir)))
-    drawimage(render('Hate'),(ix+40,40),xalign=0)
     setfont(None,0,int(30*(1.5-ir)))
-    drawimage(render('Love'),(ix+40,height-40),xalign=0)
+    drawimage(render('Love'),(ix+40,40),xalign=0)
     setfont(None,0,20)
     drawimage(render(format(ir*100,'.1f')+'%'),(ix+40,iy),xalign=0)
 
@@ -870,12 +864,14 @@ def fw_ending(number,*args):
     """
     Ending
     """
-    global love_meter,palette
-    lovev = love_meter.target
-    if lovev<0:lovev=0
-    if lovev>1:lovev=1
-    fw_branch_to(*args)()
-    fw_caption_set('Ending '+str(number)+' of 3\nFinal love metre: '+str(round(lovev*100))+'% love',palette.narration)
+    def ifw_ending():
+        global love_meter,palette
+        lovev = love_meter.target
+        if lovev<0:lovev=0
+        if lovev>1:lovev=1
+        fw_branch_to(*args)()
+        fw_caption_set('Ending '+str(number)+' of 3\nFinal love metre: '+str(round(lovev*100))+'% love',palette.narration)
+    return ifw_ending
 
 # ======================================================================================================================================================
 #
@@ -979,7 +975,8 @@ p_intro = p_intro_ba
 
 p_1_1aa = fw_background_set(img='classroom2.png',cxy=(width/2,height/2)),redir('p_1_1ab'),fw_caption_set('Early October.',palette.narration)
 p_1_1ab = redir('p_1_1ac'),fw_caption_set('Before class.',palette.narration)
-p_1_1ac = redir('p_1_1ad'),fw_caption_set('You\'re bored and waiting for the teacher to arrive.',palette.narration)
+p_1_1ac = redir('p_1_1ac2'),fw_caption_set('You\'re bored and waiting for the teacher to arrive.',palette.narration)
+p_1_1ac2 = redir('p_1_1ad'),fw_caption_set('Lily is currently dating Rustam.',palette.narration)
 p_1_1ad = redir('p_1_1ae'),fw_caption_set('On the left is a metre of Yu and Lily\'s relationship.',palette.narration)
 p_1_1ae = redir('p_1_1af'),fw_caption_set('Above is a timer which indicates how long you have to make a decision.',palette.narration)
 p_1_1af = fw_branch_to(('Talk to Yu','p_1_2aa'),('Talk to Lily','p_1_3aa')),fw_timer_set(15,'p_1_4aa'),fw_meter_status(True)
@@ -987,29 +984,29 @@ p_1_1af = fw_branch_to(('Talk to Yu','p_1_2aa'),('Talk to Lily','p_1_3aa')),fw_t
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 2: talking with Yu before class
 
-p_1_2aa = redir('p_1_2ab'),fw_character_set('yu',talpha=ashow),fw_caption_set('Psst.',palette.player,prefix='player_name'),fw_var_set('f_1_2a',0)
+p_1_2aa = redir('p_1_2ab'),fw_character_set('yu',calpha=ashow,cxy=(-width/2,height/2),txy=(width/2,height/2)),fw_caption_set('Psst.',palette.player,prefix='player_name'),fw_var_set('f_1_2a',0)
 p_1_2ab = redir('p_1_2ac'),fw_caption_set('Yu.',palette.player,prefix='player_name')
 p_1_2ac = redir('p_1_2ad'),fw_caption_set('What\'re you drawing?',palette.player,prefix='player_name')
-p_1_2ad = redir('p_1_2ae'),fw_caption_set('You catch a glimpse of a familiar flower as he closes his sketchbook.',palette.narration),fw_meter_add(0.1)
+p_1_2ad = redir('p_1_2ae'),fw_caption_set('You catch a glimpse of a familiar flower as he closes his sketchbook.',palette.narration)
 p_1_2ae = redir('p_1_2af'),fw_caption_set('Yu\nNothing.',palette.yu)
 p_1_2af = redir('p_1_2ag'),fw_caption_set('You\'re drawing her again, aren\'t you?',palette.player,prefix='player_name')
 p_1_2ag = redir('p_1_2ag2'),fw_caption_set('Yu\nIt\'s just a lilium.',palette.yu)
 p_1_2ag2 = redir('p_1_2ag3'),fw_caption_set('Also known as a lily.',palette.narration)
 p_1_2ag3 = redir('p_1_2ah'),fw_caption_set('The flower Lily is named after.',palette.narration)
 p_1_2ah = redir('p_1_2ai'),fw_caption_set('Yu\nNothing more.',palette.yu)
-p_1_2ai = redir('p_1_2aj'),fw_caption_set('Yu\nNothing less.',palette.yu,2)
+p_1_2ai = redir('p_1_2aj'),fw_caption_set('Yu\nNothing less.',palette.yu,2),fw_meter_add(0.1)
 p_1_2aj = redir('p_1_2ak'),fw_caption_set('Sure sure.',palette.player,prefix='player_name')
 p_1_2ak = redir('p_1_2al'),fw_caption_set('Well, just a heads up,',palette.player,prefix='player_name')
 p_1_2al = redir('p_1_2am'),fw_caption_set('She has a boyfriend.',palette.player,prefix='player_name')
-p_1_2am = redir('p_1_2an'),fw_character_set('yu',talpha=ahide,txy=(-width/2,height/2)),fw_character_set('lily',talpha=ashow,cxy=(3*width/2,height/2),txy=(0.2*width,height/2)),fw_character_set('rustam',talpha=ashow,cxy=(2*width,height/2),txy=(0.8*width,height/2))
-p_1_2an = redir('p_1_2ao'),fw_caption_set('Yu\nCool.',palette.yu),fw_character_set('yu',talpha=ashow,txy=(width/2,height/2)),fw_character_set('lily',talpha=ahide,txy=(3*width/2,height/2)),fw_character_set('rustam',talpha=ahide,txy=(3*width/2,height/2))
+p_1_2am = redir('p_1_2an'),fw_character_set('yu',txy=(-width/2,height/2)),fw_character_set('lily',calpha=ashow,cxy=(3*width/2,height/2),txy=(0.2*width,height/2)),fw_character_set('rustam',calpha=ashow,cxy=(2*width,height/2),txy=(0.8*width,height/2))
+p_1_2an = redir('p_1_2ao'),fw_caption_set('Yu\nCool.',palette.yu),fw_character_set('yu',txy=(width/2,height/2)),fw_character_set('lily',txy=(3*width/2,height/2)),fw_character_set('rustam',txy=(3*width/2,height/2))
 p_1_2ao = redir('p_1_2ap'),fw_caption_set('Alright mister nonchalant.',palette.player,prefix='player_name')
 p_1_2ap = redir('p_1_4aa'),fw_caption_set('I\'ll leave you to your drawing then.',palette.player,prefix='player_name')
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 1, scene 3: talking with Lily before class
 
-irustam = fw_character_set('rustam',talpha=ashow,cxy=(3*width/2,height/2),txy=(0.8*width,height/2)),fw_character_set('lily',txy=(0.2*width,height/2))
+irustam = fw_character_set('rustam',calpha=ashow,cxy=(3*width/2,height/2),txy=(0.8*width,height/2)),fw_character_set('lily',txy=(0.2*width,height/2))
 
 p_1_3aa = redir('p_1_3ab'),fw_character_set('lily',talpha=ashow),fw_caption_set('Hey Lily.',palette.player,prefix='player_name')
 p_1_3ab = redir('p_1_3ac'),fw_caption_set('Did you read the whole syllabus?',palette.player,prefix='player_name')
@@ -1147,7 +1144,7 @@ p_2_1gq = redir('p_2_1gr'),qscroll(0),fw_caption_set('Lily\nEw.',palette.lily)
 p_2_1gr = redir('p_2_1gs'),fw_caption_set('Lily\nStop that.',palette.lily)
 p_2_1gs = redir('p_2_1gt'),qscroll(1),fw_caption_set('Rustam\nNevar!',palette.rustam)
 p_2_1gt = redir('p_2_1gu'),fw_caption_set('Rustam\nYou know you love me!',palette.rustam),fw_timer_set(1.0,'p_2_1gu',False)
-p_2_1gu = redir('p_2_1gv'),qscroll(-1),fw_caption_set('Yu\nI\'ll do it.',palette.yu,2),fw_meter_add(0.25)
+p_2_1gu = redir('p_2_1gv'),qscroll(-1),fw_caption_set('Yu\nI\'ll do it.',palette.yu,2),fw_meter_add(0.1)
 p_2_1gv = redir('p_2_1gw'),qscroll(1),fw_caption_set('Everyone turns to Yu.',palette.narration)
 p_2_1gw = redir('p_2_1gx'),qscroll(-1)
 p_2_1gx = redir('p_2_1gy'),qscroll(1)
@@ -1196,7 +1193,7 @@ p_2_1jn = redir('p_2_1jo'),qscroll(0)
 p_2_1jo = redir('p_2_1jp'),fw_caption_set('Lily\nYes.',palette.lily),fw_meter_add(-0.05)
 p_2_1jp = redir('p_2_1jq'),qscroll(-1),fw_caption_set('And you, Yu?',palette.player,prefix='player_name')
 p_2_1jq = redir('p_2_1jr')
-p_2_1jr = redir('p_2_1js'),fw_caption_set('Yu\nI\'m with you I guess.',palette.yu),fw_meter_condition('>',0.5,fw_meter_add(-0.25),fw_meter_add(-0.15))
+p_2_1jr = redir('p_2_1js'),fw_caption_set('Yu\nI\'m with you I guess.',palette.yu),fw_meter_condition('>',0.5,fw_meter_add(-0.1),fw_meter_add(-0.05))
 p_2_1js = redir('p_2_1jt'),qscroll(0)
 p_2_1jt = redir('p_2_2aa'),fw_caption_set('Lily\nYou should probably head home now.',palette.lily)
 
@@ -1284,12 +1281,12 @@ p_2_2jh = redir('p_3_1aa'),fw_caption_set('At least this will give Yu and Lily s
 qscroll1 = lambda x:(fw_character_set('yu',txy=(width*(x+0.5),height/2)),fw_character_set('lily',txy=(width*x,height/2)),fw_character_set('rustam',calpha=1,txy=(width*(x-0.5),height/2)))
 qscroll = lambda x:qscroll1(0.5-0.5*x)
 
-p_3_1aa = fw_meter_condition('>',0.7,fw_meter_condition('>=',0.9,'p_3_1ba2','p_3_1ca2'),'p_3_1da2'),fw_caption_set('After school the next day.',palette.narration)
+p_3_1aa = fw_meter_condition('>',0.6,fw_meter_condition('>=',0.75,'p_3_1ba2','p_3_1ca2'),'p_3_1da2'),fw_caption_set('After school the next day.',palette.narration)
 
-p_3_1ba2 = fw_background_set(img='hallway2.png',cxy=(width/2,height/2)),fw_character_set('yu',calpha=1,cxy=(width/2,height/2)),redir('p_3_1ba'),fw_caption_set('After school the next day.',palette.narration)
+p_3_1ba2 = fw_background_set(img='hallway2.png',cxy=(width/2,height/2)),fw_character_set('yu',calpha=ashow,cxy=(width/2,height/2)),redir('p_3_1ba'),fw_caption_set('After school the next day.',palette.narration)
 p_3_1ba = redir('p_3_1bb')
 p_3_1bb = redir('p_3_1bc'),fw_caption_set('Lily\nHey Yu!',palette.lily),fw_character_set('yu',txy=(width*0.8,height/2))
-p_3_1bc = redir('p_3_1bd'),fw_caption_set('Lily\nWait for me!',palette.lily),fw_character_set('lily',talpha=ashow,cxy=(-width/2,height/2),txy=(width*0.2,height/2))
+p_3_1bc = redir('p_3_1bd'),fw_caption_set('Lily\nWait for me!',palette.lily),fw_character_set('lily',calpha=ashow,cxy=(-width/2,height/2),txy=(width*0.2,height/2))
 p_3_1bd = redir('p_3_1be'),fw_caption_set('Yu\nHm?',palette.yu)
 p_3_1be = redir('p_3_1be2'),fw_caption_set('Rustam\nWhat about me?',palette.rustam),fw_character_set('rustam',talpha=ashow,cxy=(-width/2,height/2)),qscroll(0)
 p_3_1be2 = redir('p_3_1bf'),fw_caption_set('Lily\nTag along if you want.',palette.lily)
@@ -1307,8 +1304,8 @@ p_3_1bj = redir('p_3_1bk'),fw_caption_set('Rustam\nIt\'s because he can\'t get a
 p_3_1bk = redir('p_3_1bk2'),fw_caption_set('Rustam\nLook at him,',palette.rustam)
 p_3_1bk2 = redir('p_3_1bl'),fw_caption_set('Rustam\nWho would ever kiss him?',palette.rustam)
 p_3_1bl = redir('p_3_1bm'),fw_caption_set('Lily\nMe.',palette.lily),qscroll(1)
-p_3_1bm = fw_background_set(img='kiss.png',cxy=(width/2,height/2)),redir('p_3_1bn'),fw_character_set('lily',calpha=0),fw_character_set('rustam',calpha=0),fw_character_set('yu',calpha=0),fw_caption_set('Lily whips around and pulls Yu towards her.',palette.narration),fw_meter_add(0.04)
-p_3_1bm = redir('p_3_1bn'),fw_caption_set('She kisses him as Rustam stares in shock.',palette.narration),fw_meter_add(0.07)
+p_3_1bm = fw_background_set(img='kiss.png',cxy=(width/2,height/2)),redir('p_3_1bm2'),fw_character_set('lily',calpha=ahide),fw_character_set('rustam',calpha=ahide),fw_character_set('yu',calpha=ahide),fw_caption_set('Lily whips around and pulls Yu towards her.',palette.narration),fw_meter_add(0.18)
+p_3_1bm2 = redir('p_3_1bn'),fw_caption_set('She kisses him as Rustam stares in shock.',palette.narration),fw_meter_add(0.18)
 p_3_1bn = fw_background_set(img='walking2.png',cxy=(width/2,height/2)),redir('p_3_1bo'),fw_caption_set('Lily\nYou know,',palette.lily)
 p_3_1bo = redir('p_3_1bp'),fw_caption_set('Lily\nI really like you.',palette.lily)
 p_3_1bp = redir('p_3_1bq'),fw_caption_set('Yu\nMe too.',palette.yu)
@@ -1325,13 +1322,13 @@ p_3_1ce = redir('p_3_1cf'),fw_caption_set('Rustam\nWhat about me?',palette.rusta
 p_3_1cf = redir('p_3_1cg'),fw_caption_set('Lily\nTag along if you want.',palette.lily)
 p_3_1cg = redir('p_3_1ch')
 p_3_1ch = redir('p_3_1ci'),fw_caption_set('Rustam\nOkay then.',palette.rustam)
-p_3_1ci = redir('p_4_1aa'),fw_caption_set('Yu and Lily remain best friends, but never progress to romance.',palette.narration)
+p_3_1ci = redir('p_4_1aa'),fw_caption_set('Yu and Lily remain close friends, and begin dating a month later.',palette.narration)
 
-p_3_1da2 = fw_background_set(img='hallway2.png',cxy=(width/2,height/2)),fw_character_set('rustam',calpha=1,cxy=(width/2,height/2)),redir('p_3_1da'),fw_caption_set('After school the next day.',palette.narration)
+p_3_1da2 = fw_background_set(img='hallway2.png',cxy=(width/2,height/2)),fw_character_set('rustam',calpha=ashow,cxy=(width/2,height/2)),redir('p_3_1da'),fw_caption_set('After school the next day.',palette.narration)
 p_3_1da = redir('p_3_1db'),fw_caption_set('Rustam\nLily?',palette.rustam)
-p_3_1db = redir('p_3_1dc'),fw_character_set('rustam',talpha=ahide,txy=(-width/2,height/2)),fw_character_set('lily',talpha=ashow,cxy=(3*width/2,height/2),txy=(width*0.2,height/2)),fw_character_set('yu',talpha=ashow,cxy=(2*width,height/2),txy=(width*0.8,height/2))
+p_3_1db = redir('p_3_1dc'),fw_character_set('rustam',txy=(-width/2,height/2)),fw_character_set('lily',calpha=ashow,cxy=(3*width/2,height/2),txy=(width*0.2,height/2)),fw_character_set('yu',calpha=ashow,cxy=(2*width,height/2),txy=(width*0.8,height/2))
 p_3_1dc = redir('p_3_1dd'),fw_caption_set('Lily\nBye Yu.',palette.lily)
-p_3_1dd = redir('p_4_1aa'),fw_caption_set('Yu\nBye Lily.',palette.yu),fw_character_set('lily',talpha=ahide,txy=(-width/2,height/2))
+p_3_1dd = redir('p_end_1'),fw_caption_set('Yu\nBye Lily.',palette.yu),fw_character_set('lily',talpha=ahide,txy=(-width/2,height/2))
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Part 4, scene 1: unified university chat
@@ -1339,7 +1336,7 @@ p_3_1dd = redir('p_4_1aa'),fw_caption_set('Yu\nBye Lily.',palette.yu),fw_charact
 qscroll3 = lambda x:(fw_character_set('yu',txy=(width*(x-0.4),height/2)),fw_character_set('lily',txy=(width*(x+0.4),height/2)))
 qscroll = lambda x:qscroll3(0.5-0.4*x)
 
-p_4_1aa = fw_background_set(img='hallway2.png',cxy=(width/2,height/2)),fw_character_set('yu',calpha=ashow,),fw_character_set('lily',calpha=ashow),fw_character_set('rustam',calpha=ahide),qscroll(0),redir('p_4_1ab'),fw_caption_set('A few days before university applications close.',palette.narration)
+p_4_1aa = fw_background_set(img='hallway2.png',cxy=(width/2,height/2)),fw_character_set('yu',calpha=ashow),fw_character_set('lily',calpha=ashow),fw_character_set('rustam',calpha=ahide),qscroll(0),redir('p_4_1ab'),fw_caption_set('A few days before university applications close.',palette.narration)
 p_4_1ab = redir('p_4_1ac'),fw_caption_set('You, Yu and Lily managed to meet briefly outside of class to chat.',palette.narration)
 p_4_1ac = redir('p_4_1ad'),fw_caption_set('Lily, you know what university you\'ll be going to?',palette.player,prefix='player_name'),qscroll(1)
 p_4_1ad = redir('p_4_1ae'),fw_caption_set('Lily\nWaterloo for sure.',palette.lily),fw_meter_add(-0.01)
@@ -1462,7 +1459,7 @@ p_end_dk = fw_branch_to(),fw_caption_set('Lily\nGo on, Yu. Your stage awaits.',p
 p_end_0 = fw_meter_status(False),fw_character_set('yu',calpha=ahide),fw_character_set('lily',calpha=ahide),fw_background_set(img=('rgb',(0,0,0)))
 p_end_1 = p_end_0,p_end_ca
 p_end_2 = p_end_0,fw_meter_condition('>',0.75,p_end_aa,p_end_ba)
-p_end_3 = p_end_0,fw_meter_condition('>',0.85,p_end_aa,p_end_ba)
+p_end_3 = p_end_0,fw_meter_condition('>',0.9,p_end_aa,p_end_ba)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------
 # Go!
