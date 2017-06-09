@@ -1,6 +1,20 @@
 """
 Contingency by Rudy Li and Faith Lum
 For ICS2O1 (Mr.Cope) summative 2017
+
+The story is about Yu and Lily, two of the player’s close friends,
+who like each other but do not approach the other without the player’s
+encouragement. The player is presented with choices during the story
+and certain answers will result in either positive or negative endings
+for Yu and Lily in the future.
+
+Engine written in Java, game (meaning all game exclusive code) written
+in Python.
+
+Input is for most of the game in the form of buttons, except for the
+player's name, which uses the keyboard. Buttons respond to mouse clicks.
+
+Output is in the form of graphic display with image and string rendering.
 """
 
 # The header sets this dummy variable, so we treat its existence as a flag
